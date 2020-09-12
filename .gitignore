@@ -1,0 +1,28 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.toml
+# Test binary, build with `go test -c`
+*.test
+*_test.go
+*.sh
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+*.pem
+*.log
+
+cmd
+cmd-dev
+cmd-prod
+.DS_Store
+aeskeysalt.txt
+aeskeysalt_yijiu.txt
+conf-file1.toml
+conf-file.toml
+qiniu_key.txt
+qiniu_secret.txt
+test.txt
