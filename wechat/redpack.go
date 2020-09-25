@@ -81,7 +81,7 @@ func (wx *Wechat) SendRedPack(extId, actName, remark, wishing, openId string, am
 		log.Errorf(nil, "[SendRedPack]PostDataSsl err:%s", err.Error())
 		return nil, err
 	}
-	log.Debugf(string(data))
+	log.Debugf(nil, string(data))
 	err = xml.Unmarshal(data, resp)
 	if err != nil {
 		return nil, err

@@ -2,38 +2,38 @@ package database
 
 import (
 	"database/sql"
-	"github.com/pkg/errors"
+	"fmt"
+	"github.com/brickman-source/golang-utilities/errors"
+	"github.com/brickman-source/golang-utilities/log"
+	"github.com/brickman-source/golang-utilities/retry"
+	"github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
+	"github.com/luna-duclos/instrumentedsql"
+	"github.com/luna-duclos/instrumentedsql/opentracing"
 	"net/url"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/brickman-source/golang-utilities/log"
-	"github.com/brickman-source/golang-utilities/retry"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 )
 
 type SQLConnection struct {
-	db         *sqlx.DB
-	URL        *url.URL
-	driverName string
+	db            *sqlx.DB
+	DSN           string
+	driverName    string
+	driverPackage string
+	options
 }
 
-func cleanURLQuery(c *url.URL) *url.URL {
-	cleanurl := new(url.URL)
-	*cleanurl = *c
-
-	q := cleanurl.Query()
-	q.Del("max_conns")
-	q.Del("max_idle_conns")
-	q.Del("max_conn_lifetime")
-	q.Del("parseTime")
-
-	cleanurl.RawQuery = q.Encode()
-	return cleanurl
+func cleanURLQuery(in url.Values) (out url.Values) {
+	out, _ = url.ParseQuery(in.Encode())
+	out.Del("max_conns")
+	out.Del("max_idle_conns")
+	out.Del("max_conn_lifetime")
+	out.Del("parseTime")
+	return out
 }
 
 func (c *SQLConnection) GetDatabase() *sqlx.DB {
@@ -50,59 +50,79 @@ func (c *SQLConnection) GetDatabase() *sqlx.DB {
 	return c.db
 }
 
+func classifyDSN(dsn string) string {
+	scheme := strings.Split(dsn, "://")[0]
+	parts := strings.Split(dsn, "@")
+	host := parts[len(parts)-1]
+	return fmt.Sprintf("%s://*:*@%s", scheme, host)
+}
 func (c *SQLConnection) getDatabase() (*sqlx.DB, error) {
 	if c.db != nil {
 		return c.db, nil
 	}
 
-	var err error
-	var registeredDriver string
-
-	clean := cleanURLQuery(c.URL)
-	if registeredDriver, err = c.registerDriver(); err != nil {
-		return nil, errors.Wrap(err, "could not register driver")
-	}
-
-	log.Infof(nil, "Connecting with %s", c.URL.Scheme+"://*:*@"+c.URL.Host+c.URL.Path+"?"+clean.RawQuery)
-	u := connectionString(clean)
-
-	db, err := sql.Open(registeredDriver, u)
+	driverName, driverPackage, err := c.registerDriver()
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not open SQL connection")
+		return nil, errors.WithCode(err, "internal_server_error", "could not register driver")
 	}
 
-	c.db = sqlx.NewDb(db, clean.Scheme)
+	dsn, err := connectionString(c.DSN)
+	if err != nil {
+		return nil, err
+	}
+
+	// fulfil classifyDSN()'s format, which must starts with schema://
+	dsnToClassify := dsn
+	if driverName == "mysql" {
+		dsnToClassify = "mysql://" + strings.TrimPrefix(dsnToClassify, "mysql://")
+	}
+	classifiedDSN := classifyDSN(dsnToClassify)
+	log.Infof(log.Fields{"dsn": classifiedDSN}, "Establishing connection with SQL database backend")
+
+	db, err := sql.Open(driverName, dsn)
+	if err != nil {
+		log.Errorf(log.Fields{"dsn": classifiedDSN}, "Unable to open SQL connection")
+		return nil, errors.WithCode(err, "internal_server_error", "could not open SQL connection")
+	}
+
+	c.db = sqlx.NewDb(db, driverPackage) // This must be clean.Scheme otherwise things like `Rebind()` won't work
 	if err := c.db.Ping(); err != nil {
-		return nil, errors.Wrapf(err, "could not ping SQL connection")
+		log.Errorf(log.Fields{"dsn": classifiedDSN}, "Unable to ping SQL database backend")
+		return nil, errors.WithCode(err, "internal_server_error", "could not ping SQL connection")
 	}
 
-	log.Infof(nil, "Connected to SQL!")
+	log.Infof(log.Fields{"dsn": classifiedDSN}, "Successfully connected to SQL database backend")
+
+	_, query, err := parseQuery(c.DSN)
+	if err != nil {
+		return nil, err
+	}
 
 	maxConns := maxParallelism() * 2
-	if v := c.URL.Query().Get("max_conns"); v != "" {
+	if v := query.Get("max_conns"); v != "" {
 		s, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
-			log.Warnf(nil, "max_conns value %s could not be parsed to int: %s", v, err)
+			log.Warnf(log.Fields{"err": err.Error()}, `Query parameter "max_conns" value %v could not be parsed to int, falling back to default value %d`, v, maxConns)
 		} else {
 			maxConns = int(s)
 		}
 	}
 
 	maxIdleConns := maxParallelism()
-	if v := c.URL.Query().Get("max_idle_conns"); v != "" {
+	if v := query.Get("max_idle_conns"); v != "" {
 		s, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
-			log.Warnf(nil, "max_idle_conns value %s could not be parsed to int: %s", v, err)
+			log.Warnf(log.Fields{"err": err.Error()}, `Query parameter "max_idle_conns" value %v could not be parsed to int, falling back to default value %d`, v, maxIdleConns)
 		} else {
 			maxIdleConns = int(s)
 		}
 	}
 
 	maxConnLifetime := time.Duration(0)
-	if v := c.URL.Query().Get("max_conn_lifetime"); v != "" {
+	if v := query.Get("max_conn_lifetime"); v != "" {
 		s, err := time.ParseDuration(v)
 		if err != nil {
-			log.Warnf(nil, "max_conn_lifetime value %s could not be parsed to int: %s", v, err)
+			log.Warnf(log.Fields{"err": err.Error()}, `Query parameter "max_conn_lifetime" value %v could not be parsed to int, falling back to default value %d`, v, maxConnLifetime)
 		} else {
 			maxConnLifetime = s
 		}
@@ -123,40 +143,66 @@ func maxParallelism() int {
 	}
 	return numCPU
 }
-
-func connectionString(clean *url.URL) string {
-	if clean.Scheme == "mysql" {
-		q := clean.Query()
-		q.Set("parseTime", "true")
-		clean.RawQuery = q.Encode()
+func parseQuery(dsn string) (clean string, query url.Values, err error) {
+	query = url.Values{}
+	parts := strings.Split(dsn, "?")
+	clean = parts[0]
+	if len(parts) == 2 {
+		if query, err = url.ParseQuery(parts[1]); err != nil {
+			return "", query, errors.WithStack(err)
+		}
 	}
-
-	username := clean.User.Username()
-	userinfo := username
-	password, hasPassword := clean.User.Password()
-	if hasPassword {
-		userinfo = url.QueryEscape(userinfo) + ":" + url.QueryEscape(password)
-	}
-	clean.User = nil
-	u := clean.String()
-	clean.User = url.UserPassword(username, password)
-
-	if strings.HasPrefix(u, clean.Scheme+"://") {
-		u = strings.Replace(u, clean.Scheme+"://", clean.Scheme+"://"+userinfo+"@", 1)
-	}
-	if clean.Scheme == "mysql" {
-		u = strings.Replace(u, "mysql://", "", -1)
-	}
-	return u
+	return
 }
-
-func (c *SQLConnection) registerDriver() (string, error) {
-	if c.driverName != "" {
-		return c.driverName, nil
+func connectionString(dsn string) (string, error) {
+	dsn, query, err := parseQuery(dsn)
+	if err != nil {
+		return "", err
 	}
 
-	driverName := c.URL.Scheme
+	query = cleanURLQuery(query)
+	if strings.HasPrefix(dsn, "mysql://") {
+		query.Set("parseTime", "true")
+		dsn = strings.TrimPrefix(dsn, "mysql://")
+	}
+	return dsn + "?" + query.Encode(), nil
+}
+func (c *SQLConnection) registerDriver() (string, string, error) {
+	if c.driverName != "" {
+		return c.driverName, c.driverPackage, nil
+	}
+
+	scheme := strings.Split(c.DSN, "://")[0]
+	driverName := scheme
+	driverPackage := scheme
+
+	if c.UseTracedDriver {
+		driverName = "instrumented-sql-driver"
+		if len(c.options.forcedDriverName) > 0 {
+			driverName = c.options.forcedDriverName
+		}
+
+		tracingOpts := []instrumentedsql.Opt{instrumentedsql.WithTracer(opentracing.NewTracer(c.AllowRoot))}
+		if c.OmitArgs {
+			tracingOpts = append(tracingOpts, instrumentedsql.WithOmitArgs())
+		}
+		drivers := sql.Drivers()
+		foundIndex := sort.SearchStrings(drivers, driverName)
+
+		if !(foundIndex < len(drivers) && drivers[foundIndex] == driverName) {
+			switch scheme {
+			case "mysql":
+				sql.Register(driverName, instrumentedsql.WrapDriver(mysql.MySQLDriver{}, tracingOpts...))
+			case "postgres":
+				sql.Register(driverName, instrumentedsql.WrapDriver(&pq.Driver{}, tracingOpts...))
+			default:
+				return "", "", fmt.Errorf("unsupported scheme (%s) in DSN", scheme)
+			}
+		}
+	}
 
 	c.driverName = driverName
-	return driverName, nil
+	c.driverPackage = driverPackage
+
+	return driverName, driverPackage, nil
 }
