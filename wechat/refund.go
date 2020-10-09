@@ -96,16 +96,16 @@ func (wx *Wechat) Refund(orderId string, openId string, totalFee int) error {
 
 	response := RefundReponse{}
 
-	log.Infof(nil, "refund req:%v", WxRefundURL)
+	log.Infof( "refund req:%v", WxRefundURL)
 
 	data, err := http.PostDataSsl(WxRefundURL, reqData, []byte(wx.config.GetString("wechat.payment.certStr")), []byte(wx.config.GetString("wechat.payment.keyStr")))
 
-	log.Infof(nil, "refund resp:%v", string(data))
+	log.Infof( "refund resp:%v", string(data))
 
 	err = xml.Unmarshal(data, &response)
 
 	if err != nil {
-		log.Errorf(nil, "refund err:%s", err.Error())
+		log.Errorf( "refund err:%s", err.Error())
 		response.XML = string(data)
 	}
 

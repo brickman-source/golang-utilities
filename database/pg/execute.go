@@ -28,10 +28,10 @@ func GetItems(items []interface{}, countSqlClause, dataSqlClause string, params 
 				tx.Rebind(dataSqlClause),
 				params...)
 			if err != nil {
-				log.Errorf(nil, "get items err:%s", err.Error())
+				log.Errorf( "get items err:%s", err.Error())
 			}
 		} else {
-			log.Errorf(nil, "get count err:%s", err.Error())
+			log.Errorf( "get count err:%s", err.Error())
 		}
 		if err == sql.ErrNoRows {
 			return 0, err

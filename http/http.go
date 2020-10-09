@@ -33,7 +33,7 @@ func GetData(reqURL string) ([]byte, error) {
 	response, err := client.Do(request)
 
 	if err != nil {
-		log.Errorf(nil, "Get data error:%s", err.Error())
+		log.Errorf( "Get data error:%s", err.Error())
 		return nil, err
 	}
 
@@ -279,13 +279,13 @@ func PostDataWithHeaders(reqURL string, reqHeader goHttp.Header, bodyType string
 func PostJSON(reqURL string, objToSend interface{}, out interface{}) error {
 	jsonData, err := json.Marshal(objToSend)
 	if err != nil {
-		log.Errorf(nil, "marshal json err:%s", err.Error())
+		log.Errorf( "marshal json err:%s", err.Error())
 		return err
 	}
 
 	resp, err := goHttp.Post(reqURL, "application/json;charset=utf-8", bytes.NewReader(jsonData))
 	if err != nil {
-		log.Errorf(nil, "post json data to(%s)  err:%s", reqURL, err.Error())
+		log.Errorf( "post json data to(%s)  err:%s", reqURL, err.Error())
 		return err
 	}
 	return readJSON(resp, out)
@@ -308,7 +308,7 @@ func PostDataSsl(reqURL string, dataToSend, certPEMBlock, keyPEMBlock []byte) (r
 	defer func() {
 		err = ret.Body.Close()
 		if err != nil {
-			log.Errorf(nil, err.Error())
+			log.Errorf( err.Error())
 		}
 	}()
 
@@ -325,7 +325,7 @@ func PostXml(reqURL string, xmlToSend string, objReceived interface{}) (respData
 	ret, err := goHttp.Post(reqURL, "application/x-www-form-urlencoded;charset=utf-8", strings.NewReader(xmlToSend))
 
 	if err != nil {
-		log.Errorf(nil, "post xml err:%s", err.Error())
+		log.Errorf( "post xml err:%s", err.Error())
 		return nil, err
 	}
 
@@ -334,7 +334,7 @@ func PostXml(reqURL string, xmlToSend string, objReceived interface{}) (respData
 	data, err := ioutil.ReadAll(ret.Body)
 
 	if err != nil {
-		log.Errorf(nil, "post xml err:%s", err.Error())
+		log.Errorf( "post xml err:%s", err.Error())
 		return nil, err
 	}
 
@@ -420,7 +420,7 @@ func DownloadFile(reqURL string, filePath string) error {
 	response, err := client.Do(request)
 
 	if err != nil {
-		log.Errorf(nil, "Get data error:%s", err.Error())
+		log.Errorf( "Get data error:%s", err.Error())
 		return err
 	}
 
@@ -521,10 +521,10 @@ func readJSON(resp *goHttp.Response, out interface{}) (err error) {
 	defer resp.Body.Close()
 
 	var reader io.ReadCloser
-	//log.Infof(nil, "Content-Encoding:%s", resp.Header.Get("Content-Encoding"))
+	//log.Infof( "Content-Encoding:%s", resp.Header.Get("Content-Encoding"))
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
-		log.Infof(nil, "response:gzip")
+		log.Infof( "response:gzip")
 		reader, err = gzip.NewReader(resp.Body)
 		defer reader.Close()
 	default:

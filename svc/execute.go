@@ -45,14 +45,14 @@ func (e *Executor) Init(env goSvc.Environment) error {
 			if e.cfg == nil {
 				retry := 600
 				for i := 0; i < retry; i++ {
-					log.Infof(nil, "wait load config")
+					log.Infof( "wait load config")
 					time.Sleep(time.Second)
 					e.cfg = config.NewRemoteConfig(uRL.Scheme, uRL.Host, uRL.Path, "toml")
 					if e.cfg != nil {
 						break
 					}
 					if i+1 == retry {
-						log.Fatalf(nil, "cannot load config")
+						log.Fatalf( "cannot load config")
 					}
 				}
 			}
@@ -93,7 +93,7 @@ func (e *Executor) Init(env goSvc.Environment) error {
 		e.cfg.GetInt("log.maxAge"),
 	)
 
-	log.Infof(nil, "log level:%s", e.cfg.GetString("log.level"))
+	log.Infof( "log level:%s", e.cfg.GetString("log.level"))
 	return nil
 }
 

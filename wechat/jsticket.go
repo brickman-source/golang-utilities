@@ -24,14 +24,14 @@ func (wx *Wechat) GetJSTicket(appId, appSecret string) (string, error) {
 		return ret, nil
 	}
 	if err != nil {
-		log.Errorf(nil, "%s GetJSTicket appid err:%s", wx.config.GetString("application.name"), err.Error())
+		log.Errorf( "%s GetJSTicket appid err:%s", wx.config.GetString("application.name"), err.Error())
 	}
 
 	accessToken, err := wx.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
 		return "", err
 	}
-	log.Infof(nil, "[GetJSTicket]accessToken:%s", accessToken.AccessToken)
+	log.Infof( "[GetJSTicket]accessToken:%s", accessToken.AccessToken)
 	result := &TicketInfo{}
 
 	err = http.GetJSON(`https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token=`+accessToken.AccessToken, result)

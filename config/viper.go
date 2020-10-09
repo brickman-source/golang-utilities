@@ -40,11 +40,11 @@ func NewConfig(path string) *Config {
 	ret.v.SetConfigFile(path)
 	err := ret.v.ReadInConfig()
 	if err != nil {
-		log.Errorf(nil, "read config file err:%s", err.Error())
+		log.Errorf( "read config file err:%s", err.Error())
 	}
 	ret.v.WatchConfig()
 	ret.v.OnConfigChange(func(e fsnotify.Event) {
-		log.Debugf(nil, "reload config")
+		log.Debugf( "reload config")
 		gusync.EraseSyncMap(&ret.cache)
 	})
 	return ret
@@ -57,7 +57,7 @@ func NewConfigWithString(configStr string) *Config {
 	ret.v.SetConfigType("toml")
 	err := ret.v.ReadConfig(strings.NewReader(configStr))
 	if err != nil {
-		log.Errorf(nil, "read config file err:%s", err.Error())
+		log.Errorf( "read config file err:%s", err.Error())
 	}
 	return ret
 }
@@ -69,7 +69,7 @@ func ParseConfig(configStr string, configType string) *Config {
 	ret.v.SetConfigType(configType)
 	err := ret.v.ReadConfig(bytes.NewReader([]byte(configStr)))
 	if err != nil {
-		log.Errorf(nil, "read config err:%s", err.Error())
+		log.Errorf( "read config err:%s", err.Error())
 	}
 	return ret
 }
@@ -81,21 +81,21 @@ func NewRemoteConfig(provider, addr, path, configType string) *Config {
 	ret.v.SetConfigType(configType)
 	err := ret.v.AddRemoteProvider(provider, addr, path)
 	if err != nil {
-		log.Errorf(nil, "read log file err:%s", err.Error())
+		log.Errorf( "read log file err:%s", err.Error())
 		return nil
 	}
 	err = ret.v.ReadRemoteConfig()
 	if err != nil {
-		log.Errorf(nil, "read log file err:%s", err.Error())
+		log.Errorf( "read log file err:%s", err.Error())
 		return nil
 	}
 	err = ret.v.WatchRemoteConfigOnChannel()
 	if err != nil {
-		log.Infof(nil, "WatchRemoteConfigOnChannel err: %s", err.Error())
+		log.Infof( "WatchRemoteConfigOnChannel err: %s", err.Error())
 		return nil
 	}
 	ret.v.OnConfigChange(func(e fsnotify.Event) {
-		log.Infof(nil, "reload config: %s", string(json.ShouldMarshal(ret.v.AllSettings())))
+		log.Infof( "reload config: %s", string(json.ShouldMarshal(ret.v.AllSettings())))
 		gusync.EraseSyncMap(&ret.cache)
 	})
 
@@ -268,12 +268,12 @@ func (cfg *Config) DecryptString(str string) string {
 
 	eData, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
-		log.Errorf(nil, "config DecryptString(%s) err:%s", str, err.Error())
+		log.Errorf( "config DecryptString(%s) err:%s", str, err.Error())
 		return ""
 	}
 	dData, err := crypto.AESDecryptCBC(eData, cfg.AesKey, cfg.AesKey[:aes.BlockSize])
 	if err != nil {
-		log.Errorf(nil, "config DecryptString(%s) err:%s", str, err.Error())
+		log.Errorf( "config DecryptString(%s) err:%s", str, err.Error())
 		return ""
 	}
 
@@ -289,7 +289,7 @@ func (cfg *Config) EncryptString(str string) string {
 	dData := []byte(str)
 	eData, err := crypto.AESEncryptCBC(dData, cfg.AesKey, cfg.AesKey[:aes.BlockSize])
 	if err != nil {
-		log.Fatalf(nil, "config DecryptString(%v) err:%v", str, err)
+		log.Fatalf( "config DecryptString(%v) err:%v", str, err)
 	}
 
 	return base64.StdEncoding.EncodeToString(eData)

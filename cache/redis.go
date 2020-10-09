@@ -28,7 +28,7 @@ func NewRedisCache(addrs map[string]string, pwd string) Cache {
 		Unmarshal: func(b []byte, v interface{}) error {
 			err := json.Unmarshal(b, v)
 			if err != nil {
-				log.Errorf(nil,
+				log.Errorf(
 					`cannot unmarshal data: %v, %v`,
 					err,
 					hex.EncodeToString(b))

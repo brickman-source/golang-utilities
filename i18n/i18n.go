@@ -31,13 +31,13 @@ func LoadI18Bundle(defaultLang string, dir string) {
 		if strings.Contains(path, ".toml") {
 			_, err = i18nBundle.LoadMessageFile(path)
 			if err != nil {
-				log.Errorf(nil, "load i18n file err:%s", err.Error())
+				log.Errorf( "load i18n file err:%s", err.Error())
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		log.Errorf(nil, "load i18n bundle err: %s", err.Error())
+		log.Errorf( "load i18n bundle err: %s", err.Error())
 	}
 }
 
@@ -51,7 +51,7 @@ func GetI18nString(lang string, messageID string, template map[string]interface{
 		PluralCount:  pluralCount,
 	})
 	if err != nil {
-		log.Errorf(nil, "localize(%s) %v, pluralCount: %f err:%s", lang, template, pluralCount, err.Error())
+		log.Errorf( "localize(%s) %v, pluralCount: %f err:%s", lang, template, pluralCount, err.Error())
 		return str
 	}
 	return str

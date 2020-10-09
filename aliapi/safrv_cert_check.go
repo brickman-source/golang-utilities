@@ -18,7 +18,7 @@ func (api *AliApiHelper) CheckIdCardNameMatch(idCardNo, name string) (ret []byte
 	q.Set("name", name)
 	reqURL.RawQuery = q.Encode()
 
-	log.Debugf(nil, "check id name match:%s", reqURL.String())
+	log.Debugf( "check id name match:%s", reqURL.String())
 	_, respData, err := http.GetDataWithHeaders(
 		reqURL.String(),
 		gohttp.Header{

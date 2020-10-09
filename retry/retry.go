@@ -20,8 +20,8 @@ func Run(maxWait time.Duration, failAfter time.Duration, f func() error) (err er
 			retryStart = time.Now()
 		}
 
-		log.Errorf(nil, "run err:%s", err.Error())
-		log.Debugf(nil, "Retrying in %f seconds...", loopWait.Seconds())
+		log.Errorf( "run err:%s", err.Error())
+		log.Debugf( "Retrying in %f seconds...", loopWait.Seconds())
 
 		time.Sleep(loopWait)
 

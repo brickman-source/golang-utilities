@@ -25,9 +25,9 @@ func main() {
 	}
 	if *typ == "enc" {
 		encrypted := cfg.EncryptString(*str)
-		log.Infof(nil, "encrypted: %s", encrypted)
+		log.Infof( "encrypted: %s", encrypted)
 	} else {
 		decrypted := cfg.DecryptString(*str)
-		log.Infof(nil, "decrypted: %s", decrypted)
+		log.Infof( "decrypted: %s", decrypted)
 	}
 }

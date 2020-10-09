@@ -332,25 +332,25 @@ func Encrypt(rand io.Reader, pub *PublicKey, m, s1, s2 []byte) (ct []byte, err e
 
 // Decrypt decrypts an ECIES ciphertext.
 func (prv *PrivateKey) Decrypt(c, s1, s2 []byte) (m []byte, err error) {
-	//log.Debugf(nil, "Decrypt 1")
+	//log.Debugf( "Decrypt 1")
 	if c == nil || len(c) == 0 {
-		//log.Debugf(nil, "Decrypt 2")
+		//log.Debugf( "Decrypt 2")
 		return nil, ErrInvalidMessage
 	}
-	//log.Debugf(nil, "Decrypt 3")
+	//log.Debugf( "Decrypt 3")
 	//if prv.PublicKey == nil {
-	//	//log.Debugf(nil, "Decrypt 3.5")
+	//	//log.Debugf( "Decrypt 3.5")
 	//}
 	params := prv.PublicKey.Params
 	if params == nil {
-		//log.Debugf(nil, "Decrypt 4")
+		//log.Debugf( "Decrypt 4")
 		if params = ParamsFromCurve(prv.PublicKey.Curve); params == nil {
-			//log.Debugf(nil, "Decrypt 5")
+			//log.Debugf( "Decrypt 5")
 			err = ErrUnsupportedECIESParameters
 			return
 		}
 	}
-	//log.Debugf(nil, "Decrypt 6")
+	//log.Debugf( "Decrypt 6")
 	hash := params.Hash()
 
 	var (
@@ -360,75 +360,75 @@ func (prv *PrivateKey) Decrypt(c, s1, s2 []byte) (m []byte, err error) {
 		mEnd   int
 	)
 
-	//log.Debugf(nil, "Decrypt 7")
+	//log.Debugf( "Decrypt 7")
 	switch c[0] {
 	case 2, 3, 4:
-		//log.Debugf(nil, "Decrypt 8")
+		//log.Debugf( "Decrypt 8")
 		rLen = (prv.PublicKey.Curve.Params().BitSize + 7) / 4
 		if len(c) < (rLen + hLen + 1) {
-			//log.Debugf(nil, "Decrypt 9")
+			//log.Debugf( "Decrypt 9")
 			err = ErrInvalidMessage
 			return
 		}
 	default:
-		//log.Debugf(nil, "Decrypt 10")
+		//log.Debugf( "Decrypt 10")
 		err = ErrInvalidPublicKey
 		return
 	}
 
-	//log.Debugf(nil, "Decrypt 11")
+	//log.Debugf( "Decrypt 11")
 	mStart = rLen
 	mEnd = len(c) - hLen
 
-	//log.Debugf(nil, "Decrypt 12")
+	//log.Debugf( "Decrypt 12")
 	R := new(PublicKey)
 	R.Curve = prv.PublicKey.Curve
 	R.X, R.Y = elliptic.Unmarshal(R.Curve, c[:rLen])
-	//log.Debugf(nil, "Decrypt 13")
+	//log.Debugf( "Decrypt 13")
 	if R.X == nil {
-		//log.Debugf(nil, "Decrypt 14")
+		//log.Debugf( "Decrypt 14")
 		err = ErrInvalidPublicKey
 		return
 	}
-	//log.Debugf(nil, "Decrypt 15")
+	//log.Debugf( "Decrypt 15")
 	if !R.Curve.IsOnCurve(R.X, R.Y) {
-		//log.Debugf(nil, "Decrypt 16")
+		//log.Debugf( "Decrypt 16")
 		err = ErrInvalidCurve
 		return
 	}
-	//log.Debugf(nil, "Decrypt 17")
+	//log.Debugf( "Decrypt 17")
 
 	z, err := prv.GenerateShared(R, params.KeyLen, params.KeyLen)
-	//log.Debugf(nil, "Decrypt 18")
+	//log.Debugf( "Decrypt 18")
 	if err != nil {
-		//log.Debugf(nil, "Decrypt 19")
+		//log.Debugf( "Decrypt 19")
 		return
 	}
 
-	//log.Debugf(nil, "Decrypt 20")
+	//log.Debugf( "Decrypt 20")
 	K, err := concatKDF(hash, z, s1, params.KeyLen+params.KeyLen)
 	if err != nil {
-		//log.Debugf(nil, "Decrypt 21")
+		//log.Debugf( "Decrypt 21")
 		return
 	}
 
-	//log.Debugf(nil, "Decrypt 22")
+	//log.Debugf( "Decrypt 22")
 	Ke := K[:params.KeyLen]
 	Km := K[params.KeyLen:]
 	hash.Write(Km)
 	Km = hash.Sum(nil)
 	hash.Reset()
 
-	//log.Debugf(nil, "Decrypt 23")
+	//log.Debugf( "Decrypt 23")
 	d := messageTag(params.Hash, Km, c[mStart:mEnd], s2)
 	if subtle.ConstantTimeCompare(c[mEnd:], d) != 1 {
-		//log.Debugf(nil, "Decrypt 24")
+		//log.Debugf( "Decrypt 24")
 		err = ErrInvalidMessage
 		return
 	}
 
-	//log.Debugf(nil, "Decrypt 25")
+	//log.Debugf( "Decrypt 25")
 	m, err = symDecrypt(params, Ke, c[mStart:mEnd])
-	//log.Debugf(nil, "Decrypt 26")
+	//log.Debugf( "Decrypt 26")
 	return
 }

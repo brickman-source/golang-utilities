@@ -30,7 +30,7 @@ func IsResidentIdCard(number string) (valid bool, birthDate time.Time, sex strin
 		sexStr = number[16:17]
 		birthDate, err = time.ParseInLocation("20060102", number[6:14], time.Local)
 		if err != nil {
-			log.Debugf(nil, "get birthdate from idcard(%s) err:%s", number, err.Error())
+			log.Debugf( "get birthdate from idcard(%s) err:%s", number, err.Error())
 			return
 		}
 	}

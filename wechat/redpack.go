@@ -78,10 +78,10 @@ func (wx *Wechat) SendRedPack(extId, actName, remark, wishing, openId string, am
 	data, err := http.PostDataSsl(requestURL, output, []byte(wx.config.GetString("wechat.payment.certStr")), []byte(wx.config.GetString("wechat.payment.keyStr")))
 
 	if err != nil {
-		log.Errorf(nil, "[SendRedPack]PostDataSsl err:%s", err.Error())
+		log.Errorf( "[SendRedPack]PostDataSsl err:%s", err.Error())
 		return nil, err
 	}
-	log.Debugf(nil, string(data))
+	log.Debugf( string(data))
 	err = xml.Unmarshal(data, resp)
 	if err != nil {
 		return nil, err
