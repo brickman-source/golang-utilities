@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Brickman Source.
+ * Copyright (c) 2018. Brickman Source.
  */
 
 package wechat
@@ -37,8 +37,8 @@ func (wx *Wechat) SendSubscribeMessage(
 	data SubscribeMessageData,
 ) (*SubscribeMessageResponse, error) {
 	accessToken,err := wx.GetAccessTokenByClient(
-		appID, //wx.config.GetString("wechat.appId"),
-		appSecret, //wx.config.GetString("wechat.appSecret"),
+		appID, //wx.config.GetString("wechat.offiaccount.appId"),
+		appSecret, //wx.config.GetString("wechat.offiaccount.appSecret"),
 	)
 	if err != nil {
 		return nil ,err

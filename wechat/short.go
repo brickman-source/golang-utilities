@@ -10,8 +10,8 @@ import (
 
 func (wx *Wechat) GetShortURL(longURL string) (string, error) {
 	accessToken, err := wx.GetAccessTokenByClient(
-		wx.config.GetString("wechat.appId"),
-		wx.config.GetString("wechat.appSecret"))
+		wx.config.GetString("wechat.offiaccount.appId"),
+		wx.config.GetString("wechat.offiaccount.appSecret"))
 	if err != nil {
 		return longURL, nil
 	}

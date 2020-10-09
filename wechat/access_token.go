@@ -25,8 +25,8 @@ func (wx *Wechat) GetAccessTokenByCode(code string) (*AccessTokenResult, error) 
 	requestURL, _ := url.Parse("https://api.weixin.qq.com/sns/oauth2/access_token")
 	parameters := requestURL.Query()
 
-	parameters.Set("appid", wx.config.GetString("wechat.appId"))
-	parameters.Set("secret", wx.config.GetString("wechat.appSecret"))
+	parameters.Set("appid", wx.config.GetString("wechat.offiaccount.appId"))
+	parameters.Set("secret", wx.config.GetString("wechat.offiaccount.appSecret"))
 	parameters.Set("code", code)
 	parameters.Set("grant_type", "authorization_code")
 

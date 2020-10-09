@@ -8,8 +8,8 @@ import (
 
 func (wx *Wechat) SendTemplateMsg(param interface{}) error {
 	accessToken, err := wx.GetAccessTokenByClient(
-		wx.config.GetString("wechat.appId"),
-		wx.config.GetString("wechat.appSecret"))
+		wx.config.GetString("wechat.offiaccount.appId"),
+		wx.config.GetString("wechat.offiaccount.appSecret"))
 	if err != nil {
 		return err
 	}

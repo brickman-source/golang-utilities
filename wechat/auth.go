@@ -25,7 +25,7 @@ func (wx *Wechat) GetAuthURL(redirectUri, scope string) (string, error) {
 	requestURL, _ := url.Parse("https://open.weixin.qq.com/connect/oauth2/authorize")
 
 	parameters := requestURL.Query()
-	parameters.Set("appid", wx.config.GetString("wechat.appId"))
+	parameters.Set("appid", wx.config.GetString("wechat.offiaccount.appId"))
 	parameters.Set("redirect_uri", callbackURL.String())
 	parameters.Set("response_type", "code")
 	parameters.Set("scope", scope)

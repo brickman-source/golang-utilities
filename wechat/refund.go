@@ -76,7 +76,7 @@ func (v *RefundRequest) Xml() error {
 
 func (wx *Wechat) Refund(orderId string, openId string, totalFee int) error {
 	req := &RefundRequest{
-		AppId: wx.config.GetString("wechat.appId"),
+		AppId: wx.config.GetString("wechat.offiaccount.appId"),
 		MchId: wx.config.GetString("wechat.payment.mchId"),
 	}
 	req.NonceStr = rand.GetNonceString(32)
