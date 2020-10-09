@@ -139,26 +139,26 @@ func With(fields Fields) *Logger {
 	logger.fields = fields
 	return logger
 }
-func Panicf(fields Fields, fmt string, args ...interface{}) {
-	write(defaultLogger, LevelPanic, fields, fmt, args...)
+func Panicf(fmt string, args ...interface{}) {
+	write(defaultLogger, LevelPanic, nil, fmt, args...)
 }
-func Fatalf(fields Fields, fmt string, args ...interface{}) {
-	write(defaultLogger, LevelFatal, fields, fmt, args...)
+func Fatalf(fmt string, args ...interface{}) {
+	write(defaultLogger, LevelFatal, nil, fmt, args...)
 }
-func Errorf(fields Fields, fmt string, args ...interface{}) {
-	write(defaultLogger, LevelError, fields, fmt, args...)
+func Errorf(fmt string, args ...interface{}) {
+	write(defaultLogger, LevelError, nil, fmt, args...)
 }
-func Infof(fields Fields, fmt string, args ...interface{}) {
-	write(defaultLogger, LevelInfo, fields, fmt, args...)
+func Infof(fmt string, args ...interface{}) {
+	write(defaultLogger, LevelInfo, nil, fmt, args...)
 }
-func Debugf(fields Fields, fmt string, args ...interface{}) {
-	write(defaultLogger, LevelDebug, fields, fmt, args...)
+func Debugf(fmt string, args ...interface{}) {
+	write(defaultLogger, LevelDebug, nil, fmt, args...)
 }
-func Warnf(fields Fields, fmt string, args ...interface{}) {
-	write(defaultLogger, LevelWarn, fields, fmt, args...)
+func Warnf(fmt string, args ...interface{}) {
+	write(defaultLogger, LevelWarn, nil, fmt, args...)
 }
-func Messagef(fields Fields, level Level, fmt string, args ...interface{}) {
-	write(defaultLogger, level, fields, fmt, args...)
+func Messagef(level Level, fmt string, args ...interface{}) {
+	write(defaultLogger, level, nil, fmt, args...)
 }
 func Json(j interface{}) {
 	jd := json.ShouldMarshal(j)
