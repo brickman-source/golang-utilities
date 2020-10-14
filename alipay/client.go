@@ -24,12 +24,12 @@ type Client struct {
 func NewClient(appID, partnerID, priKeyPath, aliPublicKeyPath string) (*Client, error) {
 	priKey, err := loadPrivateKey(priKeyPath)
 	if err != nil {
-		log.Fatalf( "LoadPrivateKey err:%s", err.Error())
+		log.Fatalf("LoadPrivateKey err:%s", err.Error())
 		return nil, err
 	}
 	aliPublicKey, err := loadPublicKey(aliPublicKeyPath)
 	if err != nil {
-		log.Fatalf( "LoadPublicKey err:%s", err.Error())
+		log.Fatalf("LoadPublicKey err:%s", err.Error())
 		return nil, err
 	}
 
@@ -95,6 +95,29 @@ func (client *Client) VerifyTradeAppPayNotify(paramsStr string) error {
 	return errors.New("not supported")
 }
 
+//新版本的手机端支付
+func (client *Client) CreateTradeWapPay(orderNo string, fee int, subject string, desc string, returnUrl, notifyUrl string) (string, error) {
+	reqMap := map[string]string{
+		"body":         desc,
+		"subject":      subject,
+		"out_trade_no": orderNo,
+		"total_amount": strconv.FormatFloat(float64(fee)/100, 'f', 2, 32),
+		"product_code": "QUICK_WAP_PAY",
+	}
+	reqUrl, err := client.getOpenApiBizRequestUrl(
+		"alipay.trade.wap.pay",
+		notifyUrl,
+		returnUrl,
+		json.ShouldMarshal(reqMap),
+	)
+
+	if err != nil {
+		log.Errorf("err:%s", err.Error())
+	}
+
+	return reqUrl, err
+}
+
 //退款
 func (client *Client) Refund(orderID string, fee int, reason string, operator string, notifyUrl, returnUrl string) error {
 	reqMap := map[string]string{
@@ -113,13 +136,13 @@ func (client *Client) Refund(orderID string, fee int, reason string, operator st
 	)
 
 	if err != nil {
-		log.Errorf( "getOpenApiBizRequestUrl err:%s", err.Error())
+		log.Errorf("getOpenApiBizRequestUrl err:%s", err.Error())
 		return err
 	}
 
 	data, err := http.GetData(reqUrl)
 	if err != nil {
-		log.Errorf( "GetDataSkipTls err:%s", err.Error())
+		log.Errorf("GetDataSkipTls err:%s", err.Error())
 		return err
 	}
 
@@ -147,13 +170,13 @@ func (client *Client) QueryOrder(orderID string) (queryOrderResponse *QueryOrder
 	)
 
 	if err != nil {
-		log.Errorf( "getOpenApiBizRequestUrl err:%s", err.Error())
+		log.Errorf("getOpenApiBizRequestUrl err:%s", err.Error())
 		return nil, err
 	}
 
 	data, err := http.GetData(reqUrl)
 	if err != nil {
-		log.Errorf( "GetDataSkipTls err:%s", err.Error())
+		log.Errorf("GetDataSkipTls err:%s", err.Error())
 		return nil, err
 	}
 
@@ -203,6 +226,7 @@ func (client *Client) getOpenApiBizRequestUrl(method, notifyUrl, returnUrl strin
 		query["notify_url"] = notifyUrl
 	}
 
+	log.Infof("param: %v", query.Encode(false))
 	query["sign"], err = crypto.RSA256Sign(client.PrivateKey, []byte(query.Encode(false)))
 	if err != nil {
 		return "", err
@@ -210,6 +234,8 @@ func (client *Client) getOpenApiBizRequestUrl(method, notifyUrl, returnUrl strin
 
 	reqUrl, _ := url.Parse(gatewayUrl)
 	reqUrl.RawQuery = map2Values(query).Encode()
+
+	log.Infof("req url: %v", reqUrl.String())
 
 	return reqUrl.String(), nil
 }
