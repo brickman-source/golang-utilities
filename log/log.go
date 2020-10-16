@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Jinlong Chen.
+ * Copyright (c) 2020. Brickman Source.
  */
 
 package log
