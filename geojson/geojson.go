@@ -2,10 +2,11 @@ package geojson
 
 import (
 	"fmt"
-	"github.com/gobuffalo/packr"
 	"github.com/brickman-source/golang-utilities/map/helper"
 	"github.com/paulmach/go.geojson"
+	"io/ioutil"
 	"math"
+	"path"
 	"sync"
 )
 
@@ -20,12 +21,10 @@ var (
 	geoFeaturesLock sync.RWMutex
 )
 
-func Preload() {
+func Preload(jsonDir string) {
 	gfs := make(map[int]*geojson.FeatureCollection, 0)
 
-	box := packr.NewBox("./data/")
-
-	content, err := box.Find("100000_full.json")
+	content, err := ioutil.ReadFile(path.Join(jsonDir, "100000_full.json"))
 
 	if err != nil {
 		panic(err)
@@ -52,7 +51,7 @@ func Preload() {
 			continue
 		}
 
-		childContent, err := box.Find(fmt.Sprintf("%d_full.json", childAdCode))
+		childContent, err := ioutil.ReadFile(path.Join(jsonDir, fmt.Sprintf("%d_full.json", childAdCode)))
 		if err != nil {
 			panic(err)
 		}
@@ -74,7 +73,7 @@ func FindGeoFeature(lng, lat float64, adCode int) *geojson.Feature {
 	var ok bool
 
 	if geoFeatures == nil {
-		Preload()
+		return nil
 	}
 	if adCode == 0 {
 		adCode = 100000
@@ -142,7 +141,7 @@ func FindGeoFeatureByAddCode(adCode int) *geojson.Feature {
 	var cityFeature *geojson.Feature
 
 	if geoFeatures == nil {
-		Preload()
+		return nil
 	}
 	if adCode == 0 {
 		return nil

@@ -19,11 +19,11 @@ func Print(s string) {
 }
 
 func Write(out io.Writer, msg, fontName string) error {
-	fs, err := fs.New()
+	fileS, err := fs.New()
 	if err != nil {
 		return err
 	}
-	font, err := fs.Open(fmt.Sprintf("/%s", fontName))
+	font, err := fileS.Open(fmt.Sprintf("/%s", fontName))
 	if err != nil {
 		return errors.Wrap(err, fontName)
 	}
