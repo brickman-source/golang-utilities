@@ -5,7 +5,6 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
-	github.com/arsham/figurine v1.0.1
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-kit/kit v0.10.0
 	github.com/go-redis/cache v6.4.0+incompatible
