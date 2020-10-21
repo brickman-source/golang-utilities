@@ -2,9 +2,7 @@ package figure
 
 import (
 	"bufio"
-	"bytes"
 	"io"
-	"path"
 	"strings"
 )
 
@@ -17,19 +15,6 @@ type font struct {
 	hardblank byte
 	reverse   bool
 	letters   [][]string
-}
-
-func newFont(name string) (font font) {
-	font.setName(name)
-	fontBytes, err := Asset(path.Join("fonts", font.name+".flf"))
-	if err != nil {
-		panic(err)
-	}
-	fontBytesReader := bytes.NewReader(fontBytes)
-	scanner := bufio.NewScanner(fontBytesReader)
-	font.setAttributes(scanner)
-	font.setLetters(scanner)
-	return font
 }
 
 func newFontFromReader(reader io.Reader) (font font) {

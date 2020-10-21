@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020. Jinlong Chen.
+ */
+
 package figure
 
 import (
@@ -14,14 +18,6 @@ type figure struct {
 	phrase string
 	font
 	strict bool
-}
-
-func NewFigure(phrase, fontName string, strict bool) figure {
-	font := newFont(fontName)
-	if font.reverse {
-		phrase = reverse(phrase)
-	}
-	return figure{phrase, font, strict}
 }
 
 func NewFigureWithFont(phrase string, reader io.Reader, strict bool) figure {
