@@ -18,6 +18,8 @@ type FaceSetUserAddRequest struct {
 	LivenessControl string `json:"liveness_control"`
 }
 type FaceSetUserAddResponse struct {
+	ErrorCode      int    `json:"error_code" xml:"error_code"`
+	ErrorMsg       string `json:"error_msg" xml:"error_msg"`
 	LogID     uint64 `json:"log_id"`
 	FaceToken string `json:"face_token"`
 	Location  struct {

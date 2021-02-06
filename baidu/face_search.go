@@ -18,6 +18,8 @@ type FaceSearchRequest struct {
 }
 
 type FaceSearchResponse struct {
+	ErrorCode      int    `json:"error_code" xml:"error_code"`
+	ErrorMsg       string `json:"error_msg" xml:"error_msg"`
 	FaceToken string `json:"face_token"`
 	UserList  []struct {
 		GroupID  string  `json:"group_id"`
