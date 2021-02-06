@@ -31,7 +31,11 @@ type FaceSetUserAddResponse struct {
 	} `json:"location"`
 }
 
-func (bd *Baidu) FaceSetUserAdd(userGroupId, userId string, userInfo string, imageData []byte, appId, appSecret string) (*FaceSetUserAddResponse, error) {
+func (bd *Baidu) FaceSetUserAdd(
+	userGroupId, userId string,
+	userInfo string,
+	imageData []byte,
+	appId, appSecret string) (*FaceSetUserAddResponse, error) {
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
 		log.Errorf("cannot get access token(%v): %v", appId, err.Error())

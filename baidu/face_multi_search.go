@@ -9,43 +9,59 @@ import (
 	"strings"
 )
 
-type FaceSearchRequest struct {
+type FaceMultiSearchRequest struct {
 	Image           string `json:"image,omitempty"`
 	ImageType       string `json:"image_type,omitempty"`
 	GroupIDList     string `json:"group_id_list,omitempty"`
+	MaxFaceNum      int    `json:"max_face_num,omitempty"`
+	MatchThreshold  int    `json:"match_threshold,omitempty"`
+	MaxUserNum      int    `json:"max_user_num,omitempty"`
 	QualityControl  string `json:"quality_control,omitempty"`
 	LivenessControl string `json:"liveness_control,omitempty"`
 }
 
-type FaceSearchResponse struct {
-	ErrorCode int    `json:"error_code" xml:"error_code"`
-	ErrorMsg  string `json:"error_msg" xml:"error_msg"`
-	FaceToken string `json:"face_token"`
-	UserList  []struct {
-		GroupID  string  `json:"group_id"`
-		UserID   string  `json:"user_id"`
-		UserInfo string  `json:"user_info"`
-		Score    float64 `json:"score"`
-	} `json:"user_list"`
+type FaceMultiSearchResponse struct {
+	ErrorCode int    `json:"error_code"`
+	ErrorMsg  string `json:"error_msg"`
+	LogID     int    `json:"log_id"`
+	Timestamp int    `json:"timestamp"`
+	Cached    int    `json:"cached"`
+	Result    struct {
+		FaceNum  int `json:"face_num"`
+		FaceList []struct {
+			FaceToken string `json:"face_token"`
+			Location  struct {
+				Left     float64 `json:"left"`
+				Top      float64 `json:"top"`
+				Width    int     `json:"width"`
+				Height   int     `json:"height"`
+				Rotation int     `json:"rotation"`
+			} `json:"location"`
+			UserList []struct {
+				GroupID  string  `json:"group_id"`
+				UserID   string  `json:"user_id"`
+				UserInfo string  `json:"user_info"`
+				Score    float64 `json:"score"`
+			} `json:"user_list"`
+		} `json:"face_list"`
+	} `json:"result"`
 }
 
-func (bd *Baidu) FaceSearch(
+func (bd *Baidu) FaceMultiSearch(
 	userGroupIdList []string,
 	imageData []byte,
-	//qualityControl string,
-	//livenessControl string,
-	appId, appSecret string) (*FaceSearchResponse, error) {
+	appId, appSecret string) (*FaceMultiSearchResponse, error) {
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
 		log.Errorf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
 	}
-	bdReqURL, _ := url.Parse(`https://aip.baidubce.com/rest/2.0/face/v3/search`)
+	bdReqURL, _ := url.Parse(`https://aip.baidubce.com/rest/2.0/face/v3/multi-search`)
 	bdReqQuery := bdReqURL.Query()
 	bdReqQuery.Set("access_token", accessToken.AccessToken)
 	bdReqURL.RawQuery = bdReqQuery.Encode()
 
-	req := &FaceSearchRequest{
+	req := &FaceMultiSearchRequest{
 		Image:       base64.StdEncoding.EncodeToString(imageData),
 		ImageType:   "BASE64",
 		GroupIDList: strings.Join(userGroupIdList, ","),
@@ -60,7 +76,7 @@ func (bd *Baidu) FaceSearch(
 		log.Infof("bd err: %v", err)
 		return nil, err
 	}
-	bdResp := &FaceSearchResponse{}
+	bdResp := &FaceMultiSearchResponse{}
 	err = json.Unmarshal(bdRespData, bdResp)
 	if err != nil {
 		log.Infof("bd err: %v", err)
