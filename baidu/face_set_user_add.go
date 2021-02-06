@@ -48,8 +48,8 @@ func (bd *Baidu) FaceSetUserAdd(userGroupId, userId string, userInfo string, ima
 		GroupID:         userGroupId,
 		UserID:          userId,
 		UserInfo:        userInfo,
-		QualityControl:  "NORMAL",
-		LivenessControl: "NORMAL",
+		//QualityControl:  "NORMAL",
+		//LivenessControl: "NORMAL",
 	}
 
 	bdRespData, err := http.PostData(bdReqURL.String(),
