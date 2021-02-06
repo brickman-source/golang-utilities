@@ -10,11 +10,11 @@ import (
 )
 
 type FaceSearchRequest struct {
-	Image           string `json:"image"`
-	ImageType       string `json:"image_type"`
-	GroupIDList     string `json:"group_id_list"`
-	QualityControl  string `json:"quality_control"`
-	LivenessControl string `json:"liveness_control"`
+	Image           string `json:"image,omitempty"`
+	ImageType       string `json:"image_type,omitempty"`
+	GroupIDList     string `json:"group_id_list,omitempty"`
+	QualityControl  string `json:"quality_control,omitempty"`
+	LivenessControl string `json:"liveness_control,omitempty"`
 }
 
 type FaceSearchResponse struct {

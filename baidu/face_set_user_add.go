@@ -9,17 +9,17 @@ import (
 )
 
 type FaceSetUserAddRequest struct {
-	Image           string `json:"image"`
-	ImageType       string `json:"image_type"`
-	GroupID         string `json:"group_id"`
-	UserID          string `json:"user_id"`
-	UserInfo        string `json:"user_info"`
-	QualityControl  string `json:"quality_control"`
-	LivenessControl string `json:"liveness_control"`
+	Image           string `json:"image,omitempty"`
+	ImageType       string `json:"image_type,omitempty"`
+	GroupID         string `json:"group_id,omitempty"`
+	UserID          string `json:"user_id,omitempty"`
+	UserInfo        string `json:"user_info,omitempty"`
+	QualityControl  string `json:"quality_control,omitempty"`
+	LivenessControl string `json:"liveness_control,omitempty"`
 }
 type FaceSetUserAddResponse struct {
-	ErrorCode      int    `json:"error_code" xml:"error_code"`
-	ErrorMsg       string `json:"error_msg" xml:"error_msg"`
+	ErrorCode int    `json:"error_code" xml:"error_code"`
+	ErrorMsg  string `json:"error_msg" xml:"error_msg"`
 	LogID     uint64 `json:"log_id"`
 	FaceToken string `json:"face_token"`
 	Location  struct {
@@ -43,11 +43,13 @@ func (bd *Baidu) FaceSetUserAdd(userGroupId, userId string, userInfo string, ima
 	bdReqURL.RawQuery = bdReqQuery.Encode()
 
 	req := &FaceSetUserAddRequest{
-		Image:     base64.StdEncoding.EncodeToString(imageData),
-		ImageType: "BASE64",
-		GroupID:   userGroupId,
-		UserID:    userId,
-		UserInfo:  userInfo,
+		Image:           base64.StdEncoding.EncodeToString(imageData),
+		ImageType:       "BASE64",
+		GroupID:         userGroupId,
+		UserID:          userId,
+		UserInfo:        userInfo,
+		QualityControl:  "NORMAL",
+		LivenessControl: "NORMAL",
 	}
 
 	bdRespData, err := http.PostData(bdReqURL.String(),
