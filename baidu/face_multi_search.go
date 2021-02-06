@@ -50,6 +50,8 @@ type FaceMultiSearchResponse struct {
 func (bd *Baidu) FaceMultiSearch(
 	userGroupIdList []string,
 	imageData []byte,
+	qualityControl FaceControlLevel,
+	livenessControl FaceControlLevel,
 	appId, appSecret string) (*FaceMultiSearchResponse, error) {
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
@@ -62,9 +64,11 @@ func (bd *Baidu) FaceMultiSearch(
 	bdReqURL.RawQuery = bdReqQuery.Encode()
 
 	req := &FaceMultiSearchRequest{
-		Image:       base64.StdEncoding.EncodeToString(imageData),
-		ImageType:   "BASE64",
-		GroupIDList: strings.Join(userGroupIdList, ","),
+		Image:           base64.StdEncoding.EncodeToString(imageData),
+		ImageType:       "BASE64",
+		GroupIDList:     strings.Join(userGroupIdList, ","),
+		QualityControl:  string(qualityControl),
+		LivenessControl: string(livenessControl),
 	}
 
 	bdRespData, err := http.PostData(bdReqURL.String(),
