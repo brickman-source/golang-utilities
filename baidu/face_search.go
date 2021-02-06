@@ -9,12 +9,25 @@ import (
 	"strings"
 )
 
+type FaceControlLevel string
+
+const (
+	FaceControlLevel_None   FaceControlLevel = "NONE"
+	FaceControlLevel_Low    FaceControlLevel = "LOW"
+	FaceControlLevel_Normal FaceControlLevel = "NORMAL"
+	FaceControlLevel_High   FaceControlLevel = "HIGH"
+)
+
 type FaceSearchRequest struct {
 	Image           string `json:"image,omitempty"`
 	ImageType       string `json:"image_type,omitempty"`
 	GroupIDList     string `json:"group_id_list,omitempty"`
 	QualityControl  string `json:"quality_control,omitempty"`
 	LivenessControl string `json:"liveness_control,omitempty"`
+	// 当需要对特定用户进行比对时，指定user_id进行比对。即人脸认证功能。
+	UserId       string `json:"user_id,omitempty"`
+	MaxUserNum   uint32 `json:"max_user_num,omitempty"`
+	FaceSortType int    `json:"face_sort_type,omitempty"`
 }
 
 type FaceSearchResponse struct {
@@ -32,8 +45,8 @@ type FaceSearchResponse struct {
 func (bd *Baidu) FaceSearch(
 	userGroupIdList []string,
 	imageData []byte,
-	//qualityControl string,
-	//livenessControl string,
+//qualityControl string,
+//livenessControl string,
 	appId, appSecret string) (*FaceSearchResponse, error) {
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
