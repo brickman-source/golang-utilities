@@ -21,9 +21,11 @@ func NewBaidu(cah cache.Cache, config *config.Config) *Baidu {
 		config: config,
 		quit:   make(chan struct{}),
 	}
-	go func() {
-		ret.fetchAccessTokensLoop()
-	}()
+	if cah != nil && config != nil {
+		go func() {
+			ret.fetchAccessTokensLoop()
+		}()
+	}
 	return ret
 }
 
