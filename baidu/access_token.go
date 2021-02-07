@@ -28,8 +28,12 @@ type BaiduToken struct {
 func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (ret *BaiduToken, err error) {
 	token := bd.loadTokenFromCache(apiKey)
 	if token == nil {
+		log.Infof("GetAccessTokenByClient %v 1", bd, )
+		log.Infof("GetAccessTokenByClient %v 2", apiKey)
+		log.Infof("GetAccessTokenByClient %v 3", secretKey)
+
 		log.Infof("GetAccessTokenByClient %v appId=%s appSecret=%s", bd, apiKey, secretKey)
-		token, err = bd.getAccessTokenByClient(apiKey, secretKey)
+		token, err = bd.getAccessToken(apiKey, secretKey)
 		if err != nil {
 			return
 		}
@@ -37,7 +41,7 @@ func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (ret *BaiduTok
 	return
 }
 
-func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, error) {
+func (bd *Baidu) getAccessToken(apiKey, secretKey string) (*BaiduToken, error) {
 	ret := &BaiduToken{}
 
 	getTokenURL, _ := url.Parse("https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials")
@@ -48,7 +52,7 @@ func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, 
 
 	getTokenURL.RawQuery = parameters.Encode()
 
-	log.Infof("%s getAccessTokenByClient:%s", bd.config.GetString("application.name"), getTokenURL.String())
+	log.Infof("config %v %s getAccessToken:%s", bd.config, bd.config.GetString("application.name"), getTokenURL.String())
 
 	err := http.GetJSON(getTokenURL.String(), ret)
 	if err != nil {
@@ -60,7 +64,7 @@ func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, 
 
 	ret.ExpiresAt = time.Now().Unix() + ret.ExpiresIn
 
-	log.Infof("%s getAccessTokenByClient new token: %v %v", apiKey, bd.config.GetString("application.name"), ret)
+	log.Infof("%s getAccessToken new token: %v %v", apiKey, bd.config.GetString("application.name"), ret)
 
 	bd.storeTokenToCache(apiKey, ret, time.Second*time.Duration(ret.ExpiresIn))
 
