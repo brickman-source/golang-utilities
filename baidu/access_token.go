@@ -25,8 +25,8 @@ type BaiduToken struct {
 	SessionSecret    string `json:"session_secret" xml:"session_secret"`
 }
 
-func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (ret *BaiduToken, err error) {
-	token := bd.loadTokenFromCache(apiKey)
+func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (token *BaiduToken, err error) {
+	token = bd.loadTokenFromCache(apiKey)
 	if token == nil {
 		log.Infof("GetAccessTokenByClient %v 2", apiKey)
 		log.Infof("GetAccessTokenByClient %v 3", secretKey)
@@ -87,6 +87,7 @@ func (bd *Baidu) storeTokenToCache(apiKey string, cacheVal *BaiduToken, expiresI
 
 func (bd *Baidu) loadTokenFromCache(apiKey string) *BaiduToken {
 	if bd.cache != nil {
+		log.Infof("cache is not null")
 		ret := &BaiduToken{}
 		err := bd.cache.Get("bd:access_token:"+bd.config.GetString("application.name")+":"+apiKey, ret)
 		if err == nil {
@@ -94,7 +95,7 @@ func (bd *Baidu) loadTokenFromCache(apiKey string) *BaiduToken {
 			return ret
 		}
 	}
-	if val, ok := bd.memory.Load("bd:access_token:" + apiKey); ok {
+	if val, ok := bd.memory.Load("bd:access_token:" + apiKey); ok && val != nil{
 		ret := &BaiduToken{}
 		err := json.Unmarshal([]byte(val.(string)), ret)
 		if err == nil {
