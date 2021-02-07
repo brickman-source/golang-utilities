@@ -7,7 +7,6 @@ package baidu
 import (
 	"errors"
 	"github.com/brickman-source/golang-utilities/http"
-	"github.com/brickman-source/golang-utilities/json"
 	"github.com/brickman-source/golang-utilities/log"
 	"net/url"
 	"time"
@@ -96,9 +95,7 @@ func (bd *Baidu) loadTokenFromCache(apiKey string) *BaiduToken {
 		}
 	}
 	if val, ok := bd.memory.Load("bd:access_token:" + apiKey); ok && val != nil{
-		ret := &BaiduToken{}
-		err := json.Unmarshal([]byte(val.(string)), ret)
-		if err == nil {
+		if ret, ok := val.(*BaiduToken); ok {
 			log.Infof("access token from cache: %v", ret)
 			if ret.ExpiresAt <= time.Now().Unix()-1000 {
 				return nil
