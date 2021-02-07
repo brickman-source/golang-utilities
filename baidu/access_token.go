@@ -7,7 +7,6 @@ package baidu
 import (
 	"errors"
 	"github.com/brickman-source/golang-utilities/http"
-	"github.com/brickman-source/golang-utilities/log"
 	"net/url"
 	"time"
 )
@@ -27,11 +26,11 @@ type BaiduToken struct {
 func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (token *BaiduToken, err error) {
 	token = bd.loadTokenFromCache(apiKey)
 	if token == nil {
-		log.Infof("GetAccessTokenByClient %v 2", apiKey)
-		log.Infof("GetAccessTokenByClient %v 3", secretKey)
-		log.Infof("GetAccessTokenByClient %v 1", bd)
+		bd.logf("GetAccessTokenByClient %v 2", apiKey)
+		bd.logf("GetAccessTokenByClient %v 3", secretKey)
+		bd.logf("GetAccessTokenByClient %v 1", bd)
 
-		log.Infof("GetAccessTokenByClient %v appId=%s appSecret=%s", bd, apiKey, secretKey)
+		bd.logf("GetAccessTokenByClient %v appId=%s appSecret=%s", bd, apiKey, secretKey)
 		token, err = bd.getAccessToken(apiKey, secretKey)
 		if err != nil {
 			return
@@ -51,7 +50,7 @@ func (bd *Baidu) getAccessToken(apiKey, secretKey string) (*BaiduToken, error) {
 
 	getTokenURL.RawQuery = parameters.Encode()
 
-	log.Infof("config %v %s getAccessToken:%s", bd.config, bd.config.GetString("application.name"), getTokenURL.String())
+	bd.logf("config %v %s getAccessToken:%s", bd.config, bd.config.GetString("application.name"), getTokenURL.String())
 
 	err := http.GetJSON(getTokenURL.String(), ret)
 	if err != nil {
@@ -63,7 +62,7 @@ func (bd *Baidu) getAccessToken(apiKey, secretKey string) (*BaiduToken, error) {
 
 	ret.ExpiresAt = time.Now().Unix() + ret.ExpiresIn
 
-	log.Infof("%s getAccessToken new token: %v %v", apiKey, bd.config.GetString("application.name"), ret)
+	bd.logf("%s getAccessToken new token: %v %v", apiKey, bd.config.GetString("application.name"), ret)
 
 	bd.storeTokenToCache(apiKey, ret, time.Second*time.Duration(ret.ExpiresIn))
 
@@ -86,22 +85,25 @@ func (bd *Baidu) storeTokenToCache(apiKey string, cacheVal *BaiduToken, expiresI
 
 func (bd *Baidu) loadTokenFromCache(apiKey string) *BaiduToken {
 	if bd.cache != nil {
-		log.Infof("cache is not null")
+		bd.logf("cache is not null")
 		ret := &BaiduToken{}
 		err := bd.cache.Get("bd:access_token:"+bd.config.GetString("application.name")+":"+apiKey, ret)
 		if err == nil {
-			log.Infof("access token from cache: %v", ret)
+			bd.logf("access token from cache: %v", ret)
 			return ret
 		}
 	}
+	bd.logf("cache is null")
 	if val, ok := bd.memory.Load("bd:access_token:" + apiKey); ok && val != nil{
 		if ret, ok := val.(*BaiduToken); ok {
-			log.Infof("access token from cache: %v", ret)
+			bd.logf("access token from cache: %v", ret)
 			if ret.ExpiresAt <= time.Now().Unix()-1000 {
+				bd.logf("token expired")
 				return nil
 			}
 			return ret
 		}
 	}
+	bd.logf("didnt found token in cache")
 	return nil
 }
