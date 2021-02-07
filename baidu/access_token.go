@@ -26,14 +26,17 @@ type BaiduToken struct {
 }
 
 func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, error) {
+	if bd.cache == nil {
+		return nil, errors.New("no cache")
+	}
 	ret := &BaiduToken{}
 	cacheKey := "bd:access_token:" + bd.config.GetString("application.name") + ":" + apiKey
 	err := bd.cache.Get(cacheKey, ret)
 	if err == nil {
-		log.Infof( "access token from cache: %v", ret)
+		log.Infof("access token from cache: %v", ret)
 		return ret, nil
 	} else {
-		log.Errorf( "cannot get token %v", cacheKey)
+		log.Errorf("cannot get token %v", cacheKey)
 	}
 	return ret, err
 }
@@ -41,11 +44,14 @@ func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, 
 func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, error) {
 	ret := &BaiduToken{}
 	cacheKey := "bd:access_token:" + bd.config.GetString("application.name") + ":" + apiKey
-	err := bd.cache.Get(cacheKey, ret)
-	if err != nil {
-		log.Errorf( "%s GetAccessTokenByClient appid err:%s", bd.config.GetString("application.name"), err.Error())
-	} else {
-		log.Infof( "%s GetAccessTokenByClient old token: %v", bd.config.GetString("application.name"), ret.AccessToken)
+
+	if bd.cache != nil {
+		err := bd.cache.Get(cacheKey, ret)
+		if err != nil {
+			log.Errorf("%s GetAccessTokenByClient appid err:%s", bd.config.GetString("application.name"), err.Error())
+		} else {
+			log.Infof("%s GetAccessTokenByClient old token: %v", bd.config.GetString("application.name"), ret.AccessToken)
+		}
 	}
 
 	getTokenURL, _ := url.Parse("https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials")
@@ -56,19 +62,22 @@ func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, 
 
 	getTokenURL.RawQuery = parameters.Encode()
 
-	log.Infof( "%s getAccessTokenByClient:%s", bd.config.GetString("application.name"), getTokenURL.String())
+	log.Infof("%s getAccessTokenByClient:%s", bd.config.GetString("application.name"), getTokenURL.String())
 
-	err = http.GetJSON(getTokenURL.String(), ret)
+	err := http.GetJSON(getTokenURL.String(), ret)
 	if err != nil {
 		return nil, err
 	}
 	if ret.Error != "" {
 		return nil, errors.New(ret.ErrorDescription)
 	}
-	log.Infof( "%s getAccessTokenByClient new token: %v %v", cacheKey, bd.config.GetString("application.name"), ret)
-	err = bd.cache.Set(cacheKey, ret, time.Second*time.Duration(ret.ExpiresIn))
-	if err != nil {
-		log.Errorf( "set cache err: %v", err)
+	log.Infof("%s getAccessTokenByClient new token: %v %v", cacheKey, bd.config.GetString("application.name"), ret)
+
+	if bd.cache != nil {
+		err = bd.cache.Set(cacheKey, ret, time.Second*time.Duration(ret.ExpiresIn))
+		if err != nil {
+			log.Errorf("set cache err: %v", err)
+		}
 	}
 	return ret, nil
 }
@@ -76,7 +85,7 @@ func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, 
 func (bd *Baidu) fetchAccessTokensLoop() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Errorf( "fetchAccessTokensLoop err: %v", r)
+			log.Errorf("fetchAccessTokensLoop err: %v", r)
 		}
 	}()
 	t := time.NewTimer(time.Second)
@@ -105,7 +114,7 @@ func (bd *Baidu) fetchAccessTokensLoop() {
 					secretKey,
 				)
 				if err != nil {
-					log.Errorf( "fetch access token err: %v", err)
+					log.Errorf("fetch access token err: %v", err)
 				}
 				if token != nil {
 					if token.ExpiresIn < minExpiresIn {
