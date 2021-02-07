@@ -6,11 +6,10 @@ package baidu
 
 import (
 	"errors"
-	"github.com/brickman-source/golang-utilities/converter"
 	"github.com/brickman-source/golang-utilities/http"
+	"github.com/brickman-source/golang-utilities/json"
 	"github.com/brickman-source/golang-utilities/log"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -18,41 +17,27 @@ type BaiduToken struct {
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
 	RefreshToken     string `json:"refresh_token" xml:"refresh_token"`
-	ExpiresIn        int    `json:"expires_in" xml:"expires_in"`
+	ExpiresIn        int64  `json:"expires_in" xml:"expires_in"`
+	ExpiresAt        int64  `json:"expires_at" xml:"expires_at"`
 	SessionKey       string `json:"session_key" xml:"session_key"`
 	AccessToken      string `json:"access_token" xml:"access_token"`
 	Scope            string `json:"scope" xml:"scope"`
 	SessionSecret    string `json:"session_secret" xml:"session_secret"`
 }
 
-func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, error) {
-	if bd.cache == nil {
-		return nil, errors.New("no cache")
+func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (ret *BaiduToken, err error) {
+	token := bd.loadTokenFromCache(apiKey)
+	if token == nil {
+		token, err = bd.getAccessTokenByClient(apiKey, secretKey)
+		if err != nil {
+			return
+		}
 	}
-	ret := &BaiduToken{}
-	cacheKey := "bd:access_token:" + bd.config.GetString("application.name") + ":" + apiKey
-	err := bd.cache.Get(cacheKey, ret)
-	if err == nil {
-		log.Infof("access token from cache: %v", ret)
-		return ret, nil
-	} else {
-		log.Errorf("cannot get token %v", cacheKey)
-	}
-	return ret, err
+	return
 }
 
 func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, error) {
 	ret := &BaiduToken{}
-	cacheKey := "bd:access_token:" + bd.config.GetString("application.name") + ":" + apiKey
-
-	if bd.cache != nil {
-		err := bd.cache.Get(cacheKey, ret)
-		if err != nil {
-			log.Errorf("%s GetAccessTokenByClient appid err:%s", bd.config.GetString("application.name"), err.Error())
-		} else {
-			log.Infof("%s GetAccessTokenByClient old token: %v", bd.config.GetString("application.name"), ret.AccessToken)
-		}
-	}
 
 	getTokenURL, _ := url.Parse("https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials")
 	parameters := getTokenURL.Query()
@@ -71,65 +56,49 @@ func (bd *Baidu) getAccessTokenByClient(apiKey, secretKey string) (*BaiduToken, 
 	if ret.Error != "" {
 		return nil, errors.New(ret.ErrorDescription)
 	}
-	log.Infof("%s getAccessTokenByClient new token: %v %v", cacheKey, bd.config.GetString("application.name"), ret)
 
-	if bd.cache != nil {
-		err = bd.cache.Set(cacheKey, ret, time.Second*time.Duration(ret.ExpiresIn))
-		if err != nil {
-			log.Errorf("set cache err: %v", err)
-		}
-	}
+	ret.ExpiresAt = time.Now().Unix() + ret.ExpiresIn
+
+	log.Infof("%s getAccessTokenByClient new token: %v %v", apiKey, bd.config.GetString("application.name"), ret)
+
+	bd.storeTokenToCache(apiKey, ret, time.Second*time.Duration(ret.ExpiresIn))
+
 	return ret, nil
 }
 
-func (bd *Baidu) fetchAccessTokensLoop() {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Errorf("fetchAccessTokensLoop err: %v", r)
-		}
-	}()
-	t := time.NewTimer(time.Second)
-	for {
-		select {
-		case <-t.C:
-			miniPrograms := bd.config.GetMapSlice("bd.baiduConfigurations")
-			if miniPrograms == nil {
-				return
-			}
-			minExpiresIn := 999999999
-			for _, miniP := range miniPrograms {
-				var apiKey, secretKey string
-				for s, i := range miniP {
-					if strings.ToLower(s) == "apikey" {
-						apiKey = converter.AsString(i, "")
-					}
-					if strings.ToLower(s) == "secretkey" {
-						secretKey = converter.AsString(i, "")
-					}
-				}
-				//apiKey := helper.GetValueAsString(miniP, "apiKey", "")
-				//secretKey := helper.GetValueAsString(miniP, "secretKey", "")
-				token, err := bd.getAccessTokenByClient(
-					apiKey,
-					secretKey,
-				)
-				if err != nil {
-					log.Errorf("fetch access token err: %v", err)
-				}
-				if token != nil {
-					if token.ExpiresIn < minExpiresIn {
-						minExpiresIn = token.ExpiresIn
-					}
-				}
-			}
-			if minExpiresIn < 120 {
-				minExpiresIn = 120
-			} else {
-				minExpiresIn -= 60
-			}
-			t.Reset(time.Second * time.Duration(minExpiresIn))
-		case <-bd.quit:
+func (bd *Baidu) storeTokenToCache(apiKey string, cacheVal *BaiduToken, expiresIn time.Duration) {
+	if bd.cache != nil {
+		err := bd.cache.Set(
+			"bd:access_token:"+bd.config.GetString("application.name")+":"+apiKey,
+			cacheVal,
+			expiresIn,
+		)
+		if err == nil {
 			return
 		}
 	}
+	bd.memory.Store("bd:access_token:"+apiKey, cacheVal)
+}
+
+func (bd *Baidu) loadTokenFromCache(apiKey string) *BaiduToken {
+	if bd.cache != nil {
+		ret := &BaiduToken{}
+		err := bd.cache.Get("bd:access_token:"+bd.config.GetString("application.name")+":"+apiKey, ret)
+		if err == nil {
+			log.Infof("access token from cache: %v", ret)
+			return ret
+		}
+	}
+	if val, ok := bd.memory.Load("bd:access_token:" + apiKey); ok {
+		ret := &BaiduToken{}
+		err := json.Unmarshal([]byte(val.(string)), ret)
+		if err == nil {
+			log.Infof("access token from cache: %v", ret)
+			if ret.ExpiresAt <= time.Now().Unix()-1000 {
+				return nil
+			}
+			return ret
+		}
+	}
+	return nil
 }
