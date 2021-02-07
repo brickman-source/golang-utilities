@@ -28,6 +28,7 @@ type BaiduToken struct {
 func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (ret *BaiduToken, err error) {
 	token := bd.loadTokenFromCache(apiKey)
 	if token == nil {
+		log.Infof("GetAccessTokenByClient %v appId=%s appSecret=%s", bd, apiKey, secretKey)
 		token, err = bd.getAccessTokenByClient(apiKey, secretKey)
 		if err != nil {
 			return
