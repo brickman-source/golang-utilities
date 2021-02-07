@@ -22,7 +22,7 @@ type FaceMultiSearchRequest struct {
 type FaceMultiSearchResponse struct {
 	ErrorCode int    `json:"error_code"`
 	ErrorMsg  string `json:"error_msg"`
-	LogID     int    `json:"log_id"`
+	LogID     uint64 `json:"log_id"`
 	Timestamp int    `json:"timestamp"`
 	Cached    int    `json:"cached"`
 	Result    struct {
