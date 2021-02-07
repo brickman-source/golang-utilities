@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"github.com/brickman-source/golang-utilities/http"
 	"github.com/brickman-source/golang-utilities/json"
-	"github.com/brickman-source/golang-utilities/log"
 	"net/url"
 	"strings"
 )
@@ -53,10 +52,10 @@ func (bd *Baidu) FaceMultiSearch(
 	qualityControl FaceControlLevel,
 	livenessControl FaceControlLevel,
 	appId, appSecret string) (*FaceMultiSearchResponse, error) {
-	log.Infof("FaceMultiSearch %v appId=%s appSecret=%s", bd, appId, appSecret)
+	bd.logf("FaceMultiSearch %v appId=%s appSecret=%s", bd, appId, appSecret)
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
-		log.Errorf("cannot get access token(%v): %v", appId, err.Error())
+		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
 	}
 	bdReqURL, _ := url.Parse(`https://aip.baidubce.com/rest/2.0/face/v3/multi-search`)
@@ -78,13 +77,16 @@ func (bd *Baidu) FaceMultiSearch(
 	)
 
 	if err != nil {
-		log.Infof("bd err: %v", err)
+		bd.logf("post data bd err: %v", err)
 		return nil, err
 	}
+
+	bd.logf("post data resp: %v", string(bdRespData))
+
 	bdResp := &FaceMultiSearchResponse{}
 	err = json.Unmarshal(bdRespData, bdResp)
 	if err != nil {
-		log.Infof("bd err: %v", err)
+		bd.logf("bd err: %v", err)
 		return nil, err
 	}
 	return bdResp, nil
