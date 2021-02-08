@@ -26,10 +26,6 @@ type BaiduToken struct {
 func (bd *Baidu) GetAccessTokenByClient(apiKey, secretKey string) (token *BaiduToken, err error) {
 	token = bd.loadTokenFromCache(apiKey)
 	if token == nil {
-		bd.logf("GetAccessTokenByClient %v 2", apiKey)
-		bd.logf("GetAccessTokenByClient %v 3", secretKey)
-		bd.logf("GetAccessTokenByClient %v 1", bd)
-
 		bd.logf("GetAccessTokenByClient %v appId=%s appSecret=%s", bd, apiKey, secretKey)
 		token, err = bd.getAccessToken(apiKey, secretKey)
 		if err != nil {
@@ -84,26 +80,29 @@ func (bd *Baidu) storeTokenToCache(apiKey string, cacheVal *BaiduToken, expiresI
 }
 
 func (bd *Baidu) loadTokenFromCache(apiKey string) *BaiduToken {
+	isValidFunc := func(t *BaiduToken) bool {
+		if t.ExpiresAt <= time.Now().Unix()-1000 {
+			bd.logf("token expired")
+			return false
+		}
+		return true
+	}
 	if bd.cache != nil {
 		bd.logf("cache is not null")
 		ret := &BaiduToken{}
 		err := bd.cache.Get("bd:access_token:"+bd.config.GetString("application.name")+":"+apiKey, ret)
-		if err == nil {
+		if err == nil && isValidFunc(ret) {
 			bd.logf("access token from cache: %v", ret)
 			return ret
 		}
-	}
-	bd.logf("cache is null")
-	if val, ok := bd.memory.Load("bd:access_token:" + apiKey); ok && val != nil{
+	} else if val, ok := bd.memory.Load("bd:access_token:" + apiKey); ok && val != nil{
 		if ret, ok := val.(*BaiduToken); ok {
-			bd.logf("access token from cache: %v", ret)
-			if ret.ExpiresAt <= time.Now().Unix()-1000 {
-				bd.logf("token expired")
-				return nil
+			bd.logf("access token from memory: %v", ret)
+			if isValidFunc(ret) {
+				return ret
 			}
-			return ret
 		}
 	}
-	bd.logf("didnt found token in cache")
+	bd.logf("didnt found token in cache or token is expired")
 	return nil
 }
