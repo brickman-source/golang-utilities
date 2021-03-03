@@ -11,8 +11,8 @@ import (
 type IdCardSide string
 
 const (
-	IdCardSide_Front FaceControlLevel = "Front"
-	IdCardSide_Back  FaceControlLevel = "Back"
+	IdCardSide_Front IdCardSide = "Front"
+	IdCardSide_Back  IdCardSide = "Back"
 )
 
 type IdCardRecognizeRequest struct {
