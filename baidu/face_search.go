@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"github.com/brickman-source/golang-utilities/http"
 	"github.com/brickman-source/golang-utilities/json"
-	"github.com/brickman-source/golang-utilities/log"
 	"net/url"
 	"strings"
 )
