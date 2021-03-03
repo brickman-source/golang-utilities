@@ -51,7 +51,7 @@ func (bd *Baidu) FaceSearch(
 	appId, appSecret string) (*FaceSearchResponse, error) {
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
-		log.Errorf("cannot get access token(%v): %v", appId, err.Error())
+		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
 	}
 	bdReqURL, _ := url.Parse(`https://aip.baidubce.com/rest/2.0/face/v3/search`)
@@ -73,13 +73,13 @@ func (bd *Baidu) FaceSearch(
 	)
 
 	if err != nil {
-		log.Infof("bd err: %v", err)
+		bd.logf("bd err: %v", err)
 		return nil, err
 	}
 	bdResp := &FaceSearchResponse{}
 	err = json.Unmarshal(bdRespData, bdResp)
 	if err != nil {
-		log.Infof("bd err: %v", err)
+		bd.logf("bd err: %v", err)
 		return nil, err
 	}
 	return bdResp, nil

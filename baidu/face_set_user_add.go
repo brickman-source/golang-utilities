@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"github.com/brickman-source/golang-utilities/http"
 	"github.com/brickman-source/golang-utilities/json"
-	"github.com/brickman-source/golang-utilities/log"
 	"net/url"
 )
 
@@ -38,7 +37,7 @@ func (bd *Baidu) FaceSetUserAdd(
 	appId, appSecret string) (*FaceSetUserAddResponse, error) {
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
-		log.Errorf("cannot get access token(%v): %v", appId, err.Error())
+		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
 	}
 	bdReqURL, _ := url.Parse(`https://aip.baidubce.com/rest/2.0/face/v3/faceset/user/add`)
@@ -62,13 +61,13 @@ func (bd *Baidu) FaceSetUserAdd(
 	)
 
 	if err != nil {
-		log.Infof("bd err: %v", err)
+		bd.logf("bd err: %v", err)
 		return nil, err
 	}
 	bdResp := &FaceSetUserAddResponse{}
 	err = json.Unmarshal(bdRespData, bdResp)
 	if err != nil {
-		log.Infof("bd err: %v", err)
+		bd.logf("bd err: %v", err)
 		return nil, err
 	}
 	return bdResp, nil

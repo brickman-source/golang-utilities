@@ -15,7 +15,7 @@ import (
 func (bd *Baidu) AuditImage(data []byte, appId, appSecret string) (*BaiduAuditResult, error) {
 	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
-		log.Errorf( "cannot get access token(%v): %v", appId, err.Error())
+		bd.logf( "cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
 	}
 
@@ -31,22 +31,22 @@ func (bd *Baidu) AuditImage(data []byte, appId, appSecret string) (*BaiduAuditRe
 	bdRecognizeResultData, err := http.PostData(detectURL.String(), "application/x-www-form-urlencoded", []byte(params.Encode()))
 
 	if err != nil {
-		log.Infof( "recognize picture err: %v", err)
+		bd.logf( "recognize picture err: %v", err)
 		return nil, err
 	}
 	baiduAuditImageResult := &BaiduAuditResult{}
 	err = json.Unmarshal(bdRecognizeResultData, baiduAuditImageResult)
 	if err != nil {
-		log.Infof( "recognize picture err: %v", err)
+		bd.logf( "recognize picture err: %v", err)
 		return nil, err
 	}
 	return baiduAuditImageResult, nil
 	//if baiduAuditImageResult.ErrorCode != 0 || baiduAuditImageResult.ErrorMsg!= "" {
-	//	log.Infof( "recognize picture err: %v %v", baiduAuditImageResult.ErrorCode, baiduAuditImageResult.ErrorMsg)
+	//	bd.logf( "recognize picture err: %v %v", baiduAuditImageResult.ErrorCode, baiduAuditImageResult.ErrorMsg)
 	//	return baiduAuditImageResult, errors.New(baiduAuditImageResult.ErrorMsg)
 	//}
 	//if baiduAuditImageResult.ConclusionType != 1 {
-	//	log.Infof( "recognize picture result: %v %v", baiduAuditImageResult.ConclusionType, baiduAuditImageResult.Conclusion)
+	//	bd.logf( "recognize picture result: %v %v", baiduAuditImageResult.ConclusionType, baiduAuditImageResult.Conclusion)
 	//	conclusionMessage := make([]string, 0)
 	//	for _, datum := range baiduPornRecognizeResult.Data {
 	//		conclusionMessage =append(conclusionMessage, datum.Msg)
