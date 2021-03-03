@@ -10,8 +10,8 @@ import (
 type IdCardSide string
 
 const (
-	IdCardSide_Front IdCardSide = "Front"
-	IdCardSide_Back  IdCardSide = "Back"
+	IdCardSide_Front IdCardSide = "front"
+	IdCardSide_Back  IdCardSide = "back"
 )
 
 type IdCardRecognizeRequest struct {
