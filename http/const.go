@@ -52,4 +52,12 @@ const (
 	ContentTypeImagePNG                         = "image/png"
 	ContentTypeImageJpeg                        = "image/jpeg"
 	ContentTypeVideoMp4                         = "video/mp4"
+	ContentTypeVideoWebm                        = "video/webm"
+	ContentTypeVideoQuickTime                   = "video/quicktime"
+
+	ContentTypeAudioMpeg = "audio/mpeg"
+	ContentTypeAudioM4a  = "audio/m4a"
+	ContentTypeAudioOgg  = "audio/ogg"
+	ContentTypeAudioAmr  = "audio/amr"
+	ContentTypeAudioWav  = "audio/x-wav"
 )
