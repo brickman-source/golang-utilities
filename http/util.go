@@ -33,7 +33,7 @@ func AddURLQuery(reqURL string, key, value string) string {
 	return x.String()
 }
 
-func DetectContentType(httpUrl string) string {
+func ContentTypeByUrl(httpUrl string) string {
 	ext := ""
 	u, err := url.Parse(httpUrl)
 	if err == nil {
