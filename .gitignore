@@ -19,6 +19,7 @@ cmd
 cmd-dev
 cmd-prod
 .DS_Store
+viper_test.go
 aeskeysalt.txt
 aeskeysalt_yijiu.txt
 conf-file1.toml
