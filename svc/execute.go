@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	goSvc "github.com/judwhite/go-svc/svc"
+	goSvc "github.com/judwhite/go-svc"
 
 	"github.com/brickman-source/golang-utilities/config"
 	"github.com/brickman-source/golang-utilities/log"

@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/brickman-source/golang-utilities/viper/crypt/backend"
-	"go.etcd.io/etcd/clientv3"
-	"go.etcd.io/etcd/mvcc/mvccpb"
+	"go.etcd.io/etcd/client/v3"
+	"go.etcd.io/etcd/api/v3/mvccpb"
 )
-
 
 type Client struct {
 	client    *clientv3.Client
