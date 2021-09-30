@@ -29,7 +29,7 @@ func GetRequestBodyAsMap(r *http.Request) map[string]interface{} {
 		return make(map[string]interface{})
 	}
 	ret := make(map[string]interface{})
-	err = json.Unmarshal(data, ret)
+	err = json.Unmarshal(data, &ret)
 	if err != nil {
 		return make(map[string]interface{})
 	}
