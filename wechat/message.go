@@ -36,15 +36,15 @@ func (wx *Wechat) SendSubscribeMessage(
 	page string,
 	data SubscribeMessageData,
 ) (*SubscribeMessageResponse, error) {
-	accessToken,err := wx.GetAccessTokenByClient(
-		appID, //wx.config.GetString("wechat.offiaccount.appId"),
+	accessToken, err := wx.GetAccessTokenByClient(
+		appID,     //wx.config.GetString("wechat.offiaccount.appId"),
 		appSecret, //wx.config.GetString("wechat.offiaccount.appSecret"),
 	)
 	if err != nil {
-		return nil ,err
+		return nil, err
 	}
 	if accessToken == nil || accessToken.AccessToken == "" {
-		return nil, errors.New("GetAccessTokenByClient error")
+		return nil, errors.New("GetAccessTokenBceByClient error")
 	}
 	sendMsgUrl := fmt.Sprintf(`https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=%s`, accessToken.AccessToken)
 
@@ -55,10 +55,10 @@ func (wx *Wechat) SendSubscribeMessage(
 		Data:       data,
 	}
 
-	log.Infof( "send subscribe msg: %s", sendMsgUrl)
-	log.Infof( "send subscribe msg: %s", string(json.ShouldMarshal(sendM)))
+	log.Infof("send subscribe msg: %s", sendMsgUrl)
+	log.Infof("send subscribe msg: %s", string(json.ShouldMarshal(sendM)))
 	httpData, err := http.PostData(sendMsgUrl, "application/json", json.ShouldMarshal(sendM))
-	log.Infof( "send subscribe msg: %v", string(httpData))
+	log.Infof("send subscribe msg: %v", string(httpData))
 	if err != nil {
 		return nil, err
 	}

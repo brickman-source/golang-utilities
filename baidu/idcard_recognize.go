@@ -94,7 +94,7 @@ func (bd *Baidu) IdCardRecognize(
 	side IdCardSide,
 	detectRisk bool,
 	appId, appSecret string) (*IdCardRecognizeResponse, error) {
-	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
+	accessToken, err := bd.GetAccessTokenBceByClient(appId, appSecret)
 	if err != nil {
 		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err

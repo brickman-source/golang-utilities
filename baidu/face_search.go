@@ -48,7 +48,7 @@ func (bd *Baidu) FaceSearch(
 	qualityControl FaceControlLevel,
 	livenessControl FaceControlLevel,
 	appId, appSecret string) (*FaceSearchResponse, error) {
-	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
+	accessToken, err := bd.GetAccessTokenBceByClient(appId, appSecret)
 	if err != nil {
 		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err

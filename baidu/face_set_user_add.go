@@ -35,7 +35,7 @@ func (bd *Baidu) FaceSetUserAdd(
 	userInfo string,
 	imageData []byte,
 	appId, appSecret string) (*FaceSetUserAddResponse, error) {
-	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
+	accessToken, err := bd.GetAccessTokenBceByClient(appId, appSecret)
 	if err != nil {
 		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
@@ -46,11 +46,11 @@ func (bd *Baidu) FaceSetUserAdd(
 	bdReqURL.RawQuery = bdReqQuery.Encode()
 
 	req := &FaceSetUserAddRequest{
-		Image:           base64.StdEncoding.EncodeToString(imageData),
-		ImageType:       "BASE64",
-		GroupID:         userGroupId,
-		UserID:          userId,
-		UserInfo:        userInfo,
+		Image:     base64.StdEncoding.EncodeToString(imageData),
+		ImageType: "BASE64",
+		GroupID:   userGroupId,
+		UserID:    userId,
+		UserInfo:  userInfo,
 		//QualityControl:  "NORMAL",
 		//LivenessControl: "NORMAL",
 	}

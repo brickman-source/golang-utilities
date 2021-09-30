@@ -53,7 +53,7 @@ func (bd *Baidu) FaceMultiSearch(
 	livenessControl FaceControlLevel,
 	appId, appSecret string) (*FaceMultiSearchResponse, error) {
 	bd.logf("FaceMultiSearch %v appId=%s appSecret=%s", bd, appId, appSecret)
-	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
+	accessToken, err := bd.GetAccessTokenBceByClient(appId, appSecret)
 	if err != nil {
 		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/brickman-source/golang-utilities/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -20,6 +21,19 @@ func GetRequestBody(r *http.Request) []byte {
 		println("method:", r.Method)
 	}
 	return nil
+}
+
+func GetRequestBodyAsMap(r *http.Request) map[string]interface{} {
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return make(map[string]interface{})
+	}
+	ret := make(map[string]interface{})
+	err = json.Unmarshal(data, ret)
+	if err != nil {
+		return make(map[string]interface{})
+	}
+	return ret
 }
 
 func AddURLQuery(reqURL string, key, value string) string {

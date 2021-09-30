@@ -11,9 +11,9 @@ import (
 )
 
 func (bd *Baidu) AuditText(str string, appId, appSecret string) (*BaiduAuditResult, error) {
-	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
+	accessToken, err := bd.GetAccessTokenBceByClient(appId, appSecret)
 	if err != nil {
-		bd.logf( "cannot get access token(%v): %v", appId, err.Error())
+		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
 	}
 
@@ -28,13 +28,13 @@ func (bd *Baidu) AuditText(str string, appId, appSecret string) (*BaiduAuditResu
 	bdRecognizeResultData, err := http.PostData(detectURL.String(), "application/x-www-form-urlencoded", []byte(params.Encode()))
 
 	if err != nil {
-		bd.logf( "recognize picture err: %v", err)
+		bd.logf("recognize picture err: %v", err)
 		return nil, err
 	}
 	baiduAuditTextResult := &BaiduAuditResult{}
 	err = json.Unmarshal(bdRecognizeResultData, baiduAuditTextResult)
 	if err != nil {
-		bd.logf( "recognize picture err: %v", err)
+		bd.logf("recognize picture err: %v", err)
 		return nil, err
 	}
 	return baiduAuditTextResult, nil

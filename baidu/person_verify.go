@@ -26,6 +26,7 @@ type PersonVerifyResponse struct {
 		Score float64 `json:"score"`
 	} `json:"result"`
 }
+
 func (bd *Baidu) PersonVerify(
 	imageData []byte,
 	fullName string,
@@ -33,7 +34,7 @@ func (bd *Baidu) PersonVerify(
 	qualityControl FaceControlLevel,
 	livenessControl FaceControlLevel,
 	appId, appSecret string) (*PersonVerifyResponse, error) {
-	accessToken, err := bd.GetAccessTokenByClient(appId, appSecret)
+	accessToken, err := bd.GetAccessTokenBceByClient(appId, appSecret)
 	if err != nil {
 		bd.logf("cannot get access token(%v): %v", appId, err.Error())
 		return nil, err
