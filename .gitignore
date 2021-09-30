@@ -27,3 +27,4 @@ conf-file.toml
 qiniu_key.txt
 qiniu_secret.txt
 test.txt
+/.idea/
