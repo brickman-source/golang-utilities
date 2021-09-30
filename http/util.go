@@ -26,12 +26,12 @@ func GetRequestBody(r *http.Request) []byte {
 func GetRequestBodyAsMap(r *http.Request) map[string]interface{} {
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return make(map[string]interface{})
+		return nil
 	}
 	ret := make(map[string]interface{})
 	err = json.Unmarshal(data, &ret)
 	if err != nil {
-		return make(map[string]interface{})
+		return nil
 	}
 	return ret
 }
