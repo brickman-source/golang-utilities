@@ -30,3 +30,4 @@ test.txt
 /.idea/
 /config/aeskeykey.txt
 /config/aeskeykey_yijiu.txt
+/qiniu/sms/bit_s.go
