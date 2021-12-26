@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Brickman Source.
+ * Copyright (c) 2020. Brickman.
  */
 
 package log

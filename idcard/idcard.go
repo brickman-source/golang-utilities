@@ -30,7 +30,7 @@ func IsResidentIdCard(number string) (valid bool, birthDate time.Time, sex strin
 		sexStr = number[16:17]
 		birthDate, err = time.ParseInLocation("20060102", number[6:14], time.Local)
 		if err != nil {
-			log.Debugf( "get birthdate from idcard(%s) err:%s", number, err.Error())
+			log.Debugf("get birthdate from idcard(%s) err:%s", number, err.Error())
 			return
 		}
 	}
@@ -86,9 +86,9 @@ func UpgradeResidentIdCard(idCardNo string) string {
 func GenResidentIdCard(areaCode string, birthDate time.Time, sex string) (number string) {
 	var sexStr string
 	if sex == "M" { // 男
-		sexStr = fmt.Sprintf("%d", rand.GetRandInt(1, 1000)*2%10)
-	} else {
 		sexStr = fmt.Sprintf("%d", (rand.GetRandInt(1, 1000)*2+1)%10)
+	} else {
+		sexStr = fmt.Sprintf("%d", rand.GetRandInt(1, 1000)*2%10)
 	}
 
 	birthDateStr := birthDate.Format("20060102")

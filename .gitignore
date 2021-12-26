@@ -28,3 +28,5 @@ qiniu_key.txt
 qiniu_secret.txt
 test.txt
 /.idea/
+/config/aeskeykey.txt
+/config/aeskeykey_yijiu.txt

@@ -74,7 +74,7 @@ func (p *JsonbMap) To(src interface{}) error {
 	default:
 		return json.Unmarshal(source, src)
 	}
-	//log.Debugf( "marshal source:%s,%v", string(source), p)
+	//log.Debugf("marshal source:%s,%v", string(source), p)
 }
 
 type JsonbMapArray []map[string]interface{}

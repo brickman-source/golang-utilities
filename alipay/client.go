@@ -226,7 +226,6 @@ func (client *Client) getOpenApiBizRequestUrl(method, notifyUrl, returnUrl strin
 		query["notify_url"] = notifyUrl
 	}
 
-	log.Infof("param: %v", query.Encode(false))
 	query["sign"], err = crypto.RSA256Sign(client.PrivateKey, []byte(query.Encode(false)))
 	if err != nil {
 		return "", err
@@ -234,8 +233,6 @@ func (client *Client) getOpenApiBizRequestUrl(method, notifyUrl, returnUrl strin
 
 	reqUrl, _ := url.Parse(gatewayUrl)
 	reqUrl.RawQuery = map2Values(query).Encode()
-
-	log.Infof("req url: %v", reqUrl.String())
 
 	return reqUrl.String(), nil
 }

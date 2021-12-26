@@ -21,7 +21,7 @@ func WhiteList(getList func() []string) echo.MiddlewareFunc {
 				return c.NoContent(http.StatusUnauthorized)
 			}
 
-			log.Debugf( "remote ip:%s", remoteIP)
+			log.Debugf("remote ip:%s", remoteIP)
 			ipAddr := net.ParseIP(remoteIP)
 
 			for _, networkAddr := range list {
@@ -30,10 +30,10 @@ func WhiteList(getList func() []string) echo.MiddlewareFunc {
 					return c.NoContent(http.StatusUnauthorized)
 				}
 				if ipNetworkAddr.Contains(ipAddr) {
-					log.Debugf( "%s contain %s?\n", ipNetworkAddr, ipAddr)
+					log.Debugf("%s contain %s?\n", ipNetworkAddr, ipAddr)
 					return next(c)
 				} else {
-					log.Debugf( "%s not contain %s?\n", ipNetworkAddr, ipAddr)
+					log.Debugf("%s not contain %s?\n", ipNetworkAddr, ipAddr)
 				}
 			}
 			return c.NoContent(http.StatusUnauthorized)

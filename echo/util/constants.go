@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Brickman Source.
+ * Copyright (c) 2019. Brickman.
  */
 
 package util

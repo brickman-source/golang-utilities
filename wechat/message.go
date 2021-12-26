@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Brickman Source.
+ * Copyright (c) 2018. Brickman.
  */
 
 package wechat

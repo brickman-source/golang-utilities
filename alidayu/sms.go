@@ -167,10 +167,10 @@ func (ss *SmsHelper) SendSms(phoneNumber string, signName, templateCode, templat
 	}
 
 	if smsResp.Code != "OK" {
-		log.Debugf( "[SmsHelper.SendSms]send sms resp:%s", smsResp.Code)
+		log.Debugf("[SmsHelper.SendSms]send sms resp:%s", smsResp.Code)
 		return smsResp, errors.WithCode(nil, smsResp.Code, smsResp.Message)
 	}
-	log.Debugf( "[SmsHelper.SendSms]send sms resp 2:%s", smsResp.Code)
+	log.Debugf("[SmsHelper.SendSms]send sms resp 2:%s", smsResp.Code)
 
 	return smsResp, nil
 }

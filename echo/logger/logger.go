@@ -50,110 +50,110 @@ func (l *Logger) SetOutput(w io.Writer) {
 }
 
 func (l *Logger) Print(i ...interface{}) {
-	log.Infof( "%v", i)
+	log.Infof("%v", i)
 }
 
 func (l *Logger) Printf(format string, args ...interface{}) {
-	log.Infof( format, args)
+	log.Infof(format, args)
 }
 
 func (l *Logger) Printj(j gecholog.JSON) {
 	b, err := json.Marshal(j)
 	if err == nil {
-		log.Infof( "%v", string(b))
+		log.Infof("%v", string(b))
 	}
 }
 
 func (l *Logger) Debug(i ...interface{}) {
-	log.Debugf( "%v", i)
+	log.Debugf("%v", i)
 }
 
 func (l *Logger) Debugf(format string, args ...interface{}) {
-	log.Debugf( format, args)
+	log.Debugf(format, args)
 }
 
 func (l *Logger) Debugj(j gecholog.JSON) {
 	b, err := json.Marshal(j)
 	if err == nil {
-		log.Debugf( "%v", string(b))
+		log.Debugf("%v", string(b))
 	}
 }
 
 func (l *Logger) Info(i ...interface{}) {
-	log.Infof( "%v", i)
+	log.Infof("%v", i)
 }
 
 func (l *Logger) Infof(format string, args ...interface{}) {
-	log.Infof( format, args)
+	log.Infof(format, args)
 }
 
 func (l *Logger) Infoj(j gecholog.JSON) {
 	b, err := json.Marshal(j)
 	if err == nil {
-		log.Infof( "%v", string(b))
+		log.Infof("%v", string(b))
 	}
 }
 
 func (l *Logger) Warn(i ...interface{}) {
-	log.Warnf( "%v", i)
+	log.Warnf("%v", i)
 }
 
 func (l *Logger) Warnf(format string, args ...interface{}) {
-	log.Warnf( format, args)
+	log.Warnf(format, args)
 }
 
 func (l *Logger) Warnj(j gecholog.JSON) {
 	b, err := json.Marshal(j)
 	if err == nil {
-		log.Warnf( "%v", string(b))
+		log.Warnf("%v", string(b))
 	}
 }
 
 func (l *Logger) Error(i ...interface{}) {
-	log.Errorf( "%v", i)
+	log.Errorf("%v", i)
 }
 
 func (l *Logger) Errorf(format string, args ...interface{}) {
-	log.Errorf( format, args)
+	log.Errorf(format, args)
 }
 
 func (l *Logger) Errorj(j gecholog.JSON) {
 	b, err := json.Marshal(j)
 	if err == nil {
-		log.Errorf( "%v", string(b))
+		log.Errorf("%v", string(b))
 	}
 }
 
 func (l *Logger) Fatal(i ...interface{}) {
-	log.Fatalf( "%v", i)
+	log.Fatalf("%v", i)
 }
 
 func (l *Logger) Fatalf(format string, args ...interface{}) {
-	log.Fatalf( format, args)
+	log.Fatalf(format, args)
 }
 
 func (l *Logger) Fatalj(j gecholog.JSON) {
 	b, err := json.Marshal(j)
 	if err == nil {
-		log.Fatalf( "%v", string(b))
+		log.Fatalf("%v", string(b))
 	}
 	os.Exit(1)
 }
 
 func (l *Logger) Panic(i ...interface{}) {
-	log.Errorf( "%v", i)
+	log.Errorf("%v", i)
 	panic(fmt.Sprint(i...))
 }
 
 func (l *Logger) Panicf(format string, args ...interface{}) {
-	log.Errorf( format, args)
+	log.Errorf(format, args)
 	panic(fmt.Sprintf(format, args))
 }
 
 func (l *Logger) Panicj(j gecholog.JSON) {
 	b, err := json.Marshal(j)
 	if err == nil {
-		log.Errorf( "%v", string(b))
+		log.Errorf("%v", string(b))
 	}
 	panic(j)
 }

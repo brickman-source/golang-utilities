@@ -129,7 +129,7 @@ func (wx *Wechat) UnifiedOrder(
 
 	response := &UnifiedOrderResponse{}
 
-	log.Infof( "Req Xml: %s", string(reqData))
+	log.Infof("Req Xml: %s", string(reqData))
 
 	respData, err := http.PostData(WxUnifiedOrderUrl, "application/x-www-form-urlencoded", reqData)
 
@@ -137,7 +137,7 @@ func (wx *Wechat) UnifiedOrder(
 		return "", err
 	}
 
-	log.Infof( "Resp Xml: %s", string(respData))
+	log.Infof("Resp Xml: %s", string(respData))
 
 	err = xml.Unmarshal(respData, response)
 	if err != nil {
@@ -154,7 +154,7 @@ func (wx *Wechat) MinipUnifiedOrder(appId, mchId, apiKey,
 	totalFee int, tradeType WxTradeType, clientIp, notifyURL string) (prepayId string, nonce string, timestamp int64, signStr string, err error) {
 	prepayId, err = wx.UnifiedOrder(appId, mchId, apiKey, productId, productName, orderId, expire, openId, totalFee, tradeType, clientIp, notifyURL)
 	if err != nil {
-		log.Errorf( "UnifiedOrder err: %v", err)
+		log.Errorf("UnifiedOrder err: %v", err)
 		return prepayId, "", 0, "", err
 	}
 	nonce = rand.GetNonceString(32)

@@ -10,7 +10,7 @@ import (
 func (wx *Wechat) GetWxAcodeUnlimit(scene, page string, appId, appSecret string) ([]byte, error) {
 	accessToken, err := wx.GetAccessTokenByClient(appId, appSecret)
 	if err != nil {
-		log.Errorf( "cannot get access token: %v", err.Error())
+		log.Errorf("cannot get access token: %v", err.Error())
 		return nil, err
 	}
 
@@ -30,7 +30,7 @@ func (wx *Wechat) GetWxAcodeUnlimit(scene, page string, appId, appSecret string)
 		jData = []byte("{}")
 	}
 
-	log.Infof( "get wx acode unlimit: %v %v", requestURL.String(), string(jData))
+	log.Infof("get wx acode unlimit: %v %v", requestURL.String(), string(jData))
 	respData, err := http.PostData(
 		requestURL.String(),
 		"application/json;charset=UTF-8",
@@ -38,7 +38,7 @@ func (wx *Wechat) GetWxAcodeUnlimit(scene, page string, appId, appSecret string)
 	)
 
 	if err != nil {
-		log.Errorf( "get wx acode unlimit err: %v %v %v", err, requestURL.String(), string(jData))
+		log.Errorf("get wx acode unlimit err: %v %v %v", err, requestURL.String(), string(jData))
 	}
 	return respData, err
 }
